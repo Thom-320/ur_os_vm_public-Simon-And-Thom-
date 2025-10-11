@@ -1,0 +1,300 @@
+% !TeX program = pdflatex
+\documentclass[12pt,a4paper]{article}
+
+% Standard packages (pdflatex-friendly)
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{caption}
+
+\geometry{margin=1in}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue,
+  citecolor=black,
+  pdfauthor={Simon Velez; Thomas Chisica},
+  pdftitle={UR-OS Memory Management: Contiguous Placement, Segmentation, and Paging}
+}
+
+\begin{document}
+
+%-------------------- Title Page --------------------
+\begin{titlepage}
+  \centering
+  {\Large Universidad del Rosario\par}
+  \vspace{2cm}
+  {\huge \textbf{UR-OS Memory Management:}\\
+  \textbf{Contiguous Placement, Segmentation, and Paging}\par}
+  \vspace{1.5cm}
+  {\Large \textbf{Technical Report}}\par
+  \vspace{2cm}
+  {\large
+  Authors: Simon Velez \quad|\quad Thomas Chisica\par
+  Course: Operating Systems \quad|\quad Instructor: Pedro Wightman\par
+  Date: October 10, 2025\par}
+  \vfill
+\end{titlepage}
+
+%-------------------- Abstract --------------------
+\begin{abstract}
+This work presents the implementation and evaluation of memory management strategies in the educational Java simulator UR-OS. For contiguous memory allocation, we integrate and compare two classic placement policies---Best Fit and Worst Fit---and study their impact on external fragmentation. For virtual memory, we complete logical-to-physical translation for Segmentation and Paging, including segment/page derivation, bound checks, and dirty-bit handling on \texttt{STORE}. We design a deterministic scenario with controlled arrivals, sizes, and memory traces (LOAD/STORE) tailored to induce fragmentation and expose policy trade-offs. We report manually derived allocation outcomes (base addresses per process) and compare them to simulator traces and system-level metrics (total cycles, CPU utilization, throughput, average turnaround, waiting, and response times). The results confirm consistency between manual reasoning and simulation and illustrate the trade-off between aggressively reusing tight holes (Best Fit) and preserving large contiguous regions (Worst Fit), which affects subsequent admissions and overall responsiveness. Reproducibility instructions and numeric validation examples (including address translations and dirty-bit marking) are provided.
+\end{abstract}
+
+%-------------------- Introduction --------------------
+\section{Introduction}
+Memory management governs how processes acquire, translate, and release memory. In UR-OS, we address two goals: (i) implementing and selecting contiguous placement policies (Best Fit and Worst Fit), and (ii) completing address translation for Segmentation and Paging with explicit bound checks and dirty-bit updates on \texttt{STORE}. We craft a deterministic workload that induces external fragmentation, contrast manual allocation decisions against simulator behavior, and summarize system-level performance metrics.
+
+%-------------------- System Overview --------------------
+\section{System Overview}
+UR-OS comprises a CPU, a memory unit, an OS layer exposing policy toggles, and process models that issue CPU, I/O, and memory instructions. The contiguous placement policy and the addressing mode (contiguous, segmentation, paging) are \emph{configurable in \texttt{OS.java}}. The simulator prints memory translation traces and reports performance metrics on completion.
+
+%-------------------- Implementation --------------------
+\section{Implementation}
+
+\subsection{Contiguous Placement Policies}
+Let the free list be a sequence of holes, each $\langle base, size\rangle$. For a request of size $R$, the allocator selects a hole and either consumes it (exact fit) or splits it (if larger).
+
+\subsubsection*{Best Fit}
+\textbf{Definition:} Among all holes that can contain $R$, pick the one with minimum remainder $(size-R)$.\\
+\textbf{Rationale:} Reduce immediate external fragmentation by minimizing waste.\\
+\textbf{Cost:} $O(n)$ scan (unless aided by a min-structure).
+
+\subsubsection*{Worst Fit}
+\textbf{Definition:} Among all holes that can contain $R$, pick the largest hole.\\
+\textbf{Rationale:} Preserve large contiguous regions; avoid creating many tiny unreusable remainders.\\
+\textbf{Cost:} $O(n)$ to find the maximum.
+
+\paragraph{Key filenames (no paths)}
+\texttt{BestFitMemorySlotManager.java}, \texttt{WorstFitMemorySlotManager.java}, \texttt{FreeMemorySlotManagerType.java}, \texttt{OS.java}.
+
+\subsection{Address Translation}
+\subsubsection*{Segmentation}
+Given logical address $L$, derive segment $s$ and offset $d$ (bit partition is \emph{configurable in \texttt{OS.java}}). The segment table provides $(base_s, limit_s)$.
+\begin{enumerate}
+  \item Bounds: if $d \ge limit_s$, raise a segment violation.
+  \item Translation: $physical = base_s + d$.
+  \item On \texttt{STORE}: mark the target as dirty. If the simulator models dirty at segment granularity, set it at the segment descriptor; otherwise, dirty applies at page granularity only.
+\end{enumerate}
+\textbf{Filename:} \texttt{SegmentTable.java}.
+
+\subsubsection*{Paging}
+With page size $P$ and logical address $L$: $p=\lfloor L/P\rfloor$, $o=L\bmod P$.
+\begin{enumerate}
+  \item Resolve frame for $p$; if invalid, handle page fault (write back dirty victim first).
+  \item Translation: $physical = frame\times P + o$.
+  \item On \texttt{STORE}: set the dirty bit for page $p$ (PTE).
+\end{enumerate}
+\textbf{Filenames:} \texttt{PMM\_Paging.java}, \texttt{SMM\_Paging.java}.
+
+%-------------------- Deterministic Scenario --------------------
+\section{Deterministic Simulation Scenario}
+A deterministic workload induces heterogeneous holes and highlights policy differences.
+
+\subsection*{Workload (illustrative)}
+Each process has arrival time (t) and size [bytes]:
+\begin{itemize}
+  \item $P_0$ (t=0, 260): CPU, LOAD@40, CPU, STORE@180, CPU
+  \item $P_1$ (t=4, 120): CPU, LOAD@60, CPU
+  \item $P_2$ (t=8, 200): CPU, STORE@96, CPU, LOAD@150, CPU
+  \item $P_3$ (t=12, 140): CPU, IO, CPU, STORE@88, CPU
+  \item $P_4$ (t=18, 320): CPU, LOAD@220, CPU, STORE@48, CPU
+  \item $P_5$ (t=30, 110): CPU, LOAD@36, CPU, STORE@72, CPU
+  \item $P_6$ (t=72, 130): CPU, LOAD@82, CPU, STORE@40, CPU
+\end{itemize}
+Memory and page sizes are \emph{configurable in \texttt{OS.java}}.
+
+\subsection*{Why this induces fragmentation}
+Interleaving arrivals and completions creates holes of different sizes. Best-Fit tends to reuse tight holes; Worst-Fit pushes allocations toward the largest tail hole, preserving midsize holes.
+
+%-------------------- Manual Results --------------------
+\section{Manual Allocation Results (Contiguous)}
+Table~\ref{tab:manual} shows the manually derived base addresses (bytes). We focus on Best-Fit and Worst-Fit.
+
+\begin{table}[ht]
+  \centering
+  \caption{Manually derived base addresses by policy (contiguous placement).}
+  \label{tab:manual}
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    \textbf{Process} & \textbf{Best Fit} & \textbf{Worst Fit} \\
+    \midrule
+    P0 & 0    & 0 \\
+    P1 & 260  & 260 \\
+    P2 & 380  & 380 \\
+    P3 & 580  & 580 \\
+    P4 & 720  & 720 \\
+    P5 & 260  & 1040 \\
+    P6 & 0    & 1150 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection*{Free-list snapshots (justification)}
+Assume total memory $=2048$ bytes (illustrative; \emph{configurable in \texttt{OS.java}}).
+
+\begin{table}[ht]
+  \centering
+  \caption{Free-list before allocating $P_5$ (size 110).}
+  \label{tab:fl_p5}
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    \textbf{Hole \#} & \textbf{Base} & \textbf{Size} \\
+    \midrule
+    H1 & 260 & 120 \\
+    H2 & 1040 & 1008 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\noindent
+Best-Fit $\Rightarrow$ H1 (remainder $10$) $\Rightarrow$ $P_5\to 260$. Worst-Fit $\Rightarrow$ H2 $\Rightarrow$ $P_5\to 1040$.
+
+\begin{table}[ht]
+  \centering
+  \caption{Free-list before allocating $P_6$ (size 130).}
+  \label{tab:fl_p6}
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    \textbf{Hole \#} & \textbf{Base} & \textbf{Size} \\
+    \midrule
+    H1 & 0 & 260 \\
+    H2 & 1150 & 898 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\noindent
+Best-Fit $\Rightarrow$ H1 (remainder $130$) $\Rightarrow$ $P_6\to 0$. Worst-Fit $\Rightarrow$ H2 $\Rightarrow$ $P_6\to 1150$.
+
+%-------------------- Simulation Results --------------------
+\section{Simulation Results}
+Using contiguous memory with the current selector, the simulator emits the following metrics (example run):
+\begin{itemize}
+  \item Total execution cycles $= 99$
+  \item CPU utilization $= 0.9798$
+  \item Throughput $= 0.0707$ jobs/cycle
+  \item Average turnaround $= 47.57$ cycles
+  \item Average waiting $= 29.29$ cycles
+  \item Average response time $= 9.14$ cycles
+\end{itemize}
+These values depend on the exact scenario, memory size, and scheduler configuration (\emph{configurable in \texttt{OS.java}}).
+
+\subsection*{Log evidence (verbatim excerpts)}
+\noindent\textbf{Performance indicators}
+\begin{verbatim}
+******Performance Indicators******
+Total execution cycles: 99
+CPU Utilization: 0.9797979797979798
+Throughput: 0.0707070707070707
+Average Turnaround Time: 47.57142857142857
+Average Waiting Time: 29.285714285714285
+Average Response Time: 9.142857142857142
+\end{verbatim}
+
+\noindent\textbf{Memory operations (LOAD/STORE)}
+\begin{verbatim}
+Process 0 ... LOAD,40,0
+The obtained data is: 0
+Process 0 ... STORE,180,21
+The data 21 is stored in: 180
+Process 2 ... STORE,96,11
+The data 11 is stored in: 476
+Process 5 ... STORE,72,5
+The data 5 is stored in: 332
+Process 6 ... STORE,40,9
+The data 9 is stored in: 40
+\end{verbatim}
+
+\noindent\textbf{Free-list snapshots (from the simulator)}
+\begin{verbatim}
+Free Memory Slots (3):
+Base: 0 Size: 260
+Base: 370 Size: 210
+Base: 1040 Size: 1047536
+
+Free Memory Slots (3):
+Base: 0 Size: 260
+Base: 370 Size: 350
+Base: 1040 Size: 1047536
+\end{verbatim}
+
+\subsection*{Policy comparison (metrics)}
+Both policies were executed under the same deterministic scenario (\S\,Deterministic Simulation Scenario). The table summarizes the performance indicators for each policy.
+
+\begin{table}[ht]
+  \centering
+  \caption{Simulation metrics comparison: Best Fit vs Worst Fit}
+  \label{tab:metrics_bf_wf}
+  \begin{tabular}{@{}lcccccc@{}}
+    \toprule
+    \textbf{Policy} & \textbf{Cycles} & \textbf{CPU Util.} & \textbf{Throughput} & \textbf{Avg. TAT} & \textbf{Avg. Wait} & \textbf{Avg. Resp.} \\
+    \midrule
+    Best Fit & 99 & 0.9798 & 0.0707 & 47.57 & 29.29 & 9.14 \\
+    Worst Fit & 99 & 0.9798 & 0.0707 & 47.57 & 29.29 & 9.14 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\noindent\emph{Note.} Under this particular workload and scheduler configuration (\emph{configurable in \texttt{OS.java}}), both policies yield identical aggregate metrics, even though their placement decisions differ at the hole level (see Table~\ref{tab:manual} and free-list snapshots). Different workloads or time-of-arrival patterns may surface measurable differences.
+
+\subsection*{Worst Fit excerpt (verbatim)}
+\noindent These lines illustrate Worst Fit placing $P_5$ at a high tail hole and $P_6$ at another large hole, resulting in larger physical addresses for their stores:
+\begin{verbatim}
+Process 5 ... STORE,72,5
+The data 5 is stored in: 1112
+Process 6 ... STORE,40,9
+The data 9 is stored in: 1190
+
+Free Memory Slots (2):
+Base: 0 Size: 580
+Base: 1150 Size: 1047426
+\end{verbatim}
+
+\subsection*{Comparison}
+\begin{itemize}
+  \item \textbf{Manual vs. simulation:} The run above is a reference execution; switching the selector in \texttt{OS.java} to \texttt{BEST\_FIT} or \texttt{WORST\_FIT} reproduces the expected placement differences in Table~\ref{tab:manual}.
+  \item \textbf{Fragmentation:} Best-Fit reuses tight holes earlier; Worst-Fit preserves large contiguous spans, often pushing new allocations to the tail.
+\end{itemize}
+
+%-------------------- Validation and Reproducibility --------------------
+\section{Validation and Reproducibility}
+
+\subsection*{Numeric translation checks}
+\noindent\textbf{Segmentation (illustrative).} Segment $s=2$ with $base_2=720$, $limit_2=320$. Logical offset $d=180$: $d<320\Rightarrow physical=720+180=900$. On \texttt{STORE}, mark the target dirty (if modeled at segment granularity; otherwise, dirty applies at page granularity only).\\[2mm]
+\noindent\textbf{Paging (illustrative).} Page size $P=64$. Logical $L=260\Rightarrow p=\lfloor260/64\rfloor=4$, offset $o=260\bmod64=4$. If $frame[4]=5$, $physical=5\cdot64+4=324$. On \texttt{STORE}, set $PTE[4].dirty=1$.
+
+\subsection*{How to reproduce}
+\begin{enumerate}
+  \item \textbf{Build \& run:}
+\begin{verbatim}
+ant -f build.xml run
+\end{verbatim}
+  \item \textbf{Switch contiguous policy:} in \texttt{OS.java}, set the selector of type \texttt{FreeMemorySlotManagerType} to the desired policy (\texttt{BEST\_FIT} or \texttt{WORST\_FIT}). % exact field name and wiring are configurable in OS.java
+  \item \textbf{Addressing mode \& sizes:} page size and related flags are \emph{configurable in \texttt{OS.java}}. Inspect \texttt{SegmentTable.java}, \texttt{PMM\_Paging.java}, \texttt{SMM\_Paging.java} for bound checks, translation, and dirty-bit updates.
+\end{enumerate}
+
+%-------------------- Conclusions --------------------
+\section{Conclusions and Future Work}
+We implemented contiguous placement (Best Fit, Worst Fit) and completed logical-to-physical translation for Segmentation and Paging in UR-OS. The deterministic scenario exposes expected policy differences: Best-Fit reuses tight holes; Worst-Fit preserves large regions and shifts allocations to the tail. Manual allocation tables align with simulator behavior, and aggregate metrics are consistent with the observed hole maps. Future work includes explicit fragmentation counters (external/internal), sensitivity studies over memory sizes and arrival patterns, and adaptive policies driven by hole histograms.
+
+%-------------------- Code References --------------------
+\section*{Code References (filenames only)}
+\begin{itemize}
+  \item \texttt{BestFitMemorySlotManager.java}
+  \item \texttt{WorstFitMemorySlotManager.java}
+  \item \texttt{FreeMemorySlotManagerType.java}
+  \item \texttt{OS.java}
+  \item \texttt{SegmentTable.java}
+  \item \texttt{PMM\_Paging.java}
+  \item \texttt{SMM\_Paging.java}
+\end{itemize}
+
+\end{document}

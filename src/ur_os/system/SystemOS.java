@@ -60,13 +60,21 @@ public class SystemOS implements Runnable{
         ioq.setOS(os);
         execution = new ArrayList();
         processes = new ArrayList();
-        //initSimulationQueue();
-        //initSimulationQueueSimple();
-        initSimulationQueueSimpler();
-        
+        this.simType = simType;
+        switch (simType) {
+            case MEMORY_MANAGEMENT:
+                initSimulationQueueAllocatorShowcase();
+                break;
+            case PROCESS_PLANNING:
+                initSimulationQueueSimple();
+                break;
+            case ALL:
+            default:
+                initSimulationQueueSimpler();
+                break;
+        }
 
         showProcesses();
-        this.simType = simType;
     }
     
     public int getTime(){
@@ -229,6 +237,104 @@ public class SystemOS implements Runnable{
         
         
         
+        clock = 0;
+    }
+    
+    
+    public void initSimulationQueueAllocatorShowcase(){
+        // Deterministic workload to compare placement strategies
+        processes.clear();
+        Process p;
+        Instruction temp;
+
+        p = new Process(0,0);
+        p.setSize(260);
+        p.addCPUInstructions(4);
+        temp = new MemoryInstruction(MemoryOperationType.LOAD, 40, (byte)0, 3);
+        p.addInstruction(temp);
+        p.addCPUInstructions(6);
+        temp = new MemoryInstruction(MemoryOperationType.STORE, 180, (byte)21, 4);
+        p.addInstruction(temp);
+        p.addCPUInstructions(4);
+        temp = new EndInstruction();
+        p.addInstruction(temp);
+        processes.add(p);
+
+        p = new Process(1,4);
+        p.setSize(120);
+        p.addCPUInstructions(5);
+        temp = new MemoryInstruction(MemoryOperationType.LOAD, 60, (byte)0, 3);
+        p.addInstruction(temp);
+        p.addCPUInstructions(3);
+        temp = new EndInstruction();
+        p.addInstruction(temp);
+        processes.add(p);
+
+        p = new Process(2,8);
+        p.setSize(200);
+        p.addCPUInstructions(3);
+        temp = new MemoryInstruction(MemoryOperationType.STORE, 96, (byte)11, 3);
+        p.addInstruction(temp);
+        p.addCPUInstructions(4);
+        temp = new MemoryInstruction(MemoryOperationType.LOAD, 150, (byte)0, 4);
+        p.addInstruction(temp);
+        p.addCPUInstructions(5);
+        temp = new EndInstruction();
+        p.addInstruction(temp);
+        processes.add(p);
+
+        p = new Process(3,12);
+        p.setSize(140);
+        p.addCPUInstructions(2);
+        temp = new IOInstruction(4);
+        p.addInstruction(temp);
+        p.addCPUInstructions(5);
+        temp = new MemoryInstruction(MemoryOperationType.STORE, 88, (byte)7, 3);
+        p.addInstruction(temp);
+        p.addCPUInstructions(4);
+        temp = new EndInstruction();
+        p.addInstruction(temp);
+        processes.add(p);
+
+        p = new Process(4,18);
+        p.setSize(320);
+        p.addCPUInstructions(6);
+        temp = new MemoryInstruction(MemoryOperationType.LOAD, 220, (byte)0, 5);
+        p.addInstruction(temp);
+        p.addCPUInstructions(4);
+        temp = new MemoryInstruction(MemoryOperationType.STORE, 48, (byte)19, 3);
+        p.addInstruction(temp);
+        p.addCPUInstructions(6);
+        temp = new EndInstruction();
+        p.addInstruction(temp);
+        processes.add(p);
+
+        p = new Process(5,30);
+        p.setSize(110);
+        p.addCPUInstructions(2);
+        temp = new MemoryInstruction(MemoryOperationType.LOAD, 36, (byte)0, 3);
+        p.addInstruction(temp);
+        p.addCPUInstructions(3);
+        temp = new MemoryInstruction(MemoryOperationType.STORE, 72, (byte)5, 3);
+        p.addInstruction(temp);
+        p.addCPUInstructions(2);
+        temp = new EndInstruction();
+        p.addInstruction(temp);
+        processes.add(p);
+
+        p = new Process(6,72);
+        p.setSize(130);
+        p.addCPUInstructions(3);
+        temp = new MemoryInstruction(MemoryOperationType.LOAD, 82, (byte)0, 3);
+        p.addInstruction(temp);
+        p.addCPUInstructions(4);
+        temp = new MemoryInstruction(MemoryOperationType.STORE, 40, (byte)9, 3);
+        p.addInstruction(temp);
+        p.addCPUInstructions(2);
+        temp = new EndInstruction();
+        p.addInstruction(temp);
+        processes.add(p);
+
         clock = 0;
     }
     

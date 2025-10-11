@@ -102,23 +102,34 @@ public class PMM_Paging extends ProcessMemoryManager{
     
     public MemoryAddress getPageMemoryAddressFromLocalAddress(int locAdd){
         
-        //Include your code here
-        
-        return new MemoryAddress(-1, -1);
+        if(locAdd < 0 || locAdd >= this.getSize()){
+            System.out.println("Error - Invalid logical address request");
+            return new MemoryAddress(-1, -1);
+        }
+        int pageSize = PageTable.getPageSize();
+        int page = locAdd / pageSize;
+        int offset = locAdd % pageSize;
+        addMemoryAccess(page); // Track page usage for replacement
+        return new MemoryAddress(page, offset);
     }
     
     public int getFrameMemoryAddressFromLogicalMemoryAddress(int page){
         
-        //Include your code here
-        
-        return -1;
+        if(page < 0){
+            return -2;
+        }
+        return pt.getFrameIdFromPage(page);
     }
     
     public MemoryAddress getFrameMemoryAddressFromLogicalMemoryAddress(MemoryAddress m){
         
-        //Include your code here
-        
-        return new MemoryAddress(-1, -1);
+        int page = m.getDivision();
+        int frame = getFrameMemoryAddressFromLogicalMemoryAddress(page);
+        if(frame < 0){
+            return null;
+        }
+        int base = frame * PageTable.getPageSize();
+        return new MemoryAddress(base, m.getOffset());
     }
     
     
@@ -128,9 +139,16 @@ public class PMM_Paging extends ProcessMemoryManager{
     
     public MemoryAddress getVFrameMemoryAddressFromLogicalMemoryAddress(MemoryAddress m){
         
-        //Include your code here
-        
-        return new MemoryAddress(-1, -1);
+        int page = m.getDivision();
+        if(page < 0){
+            return new MemoryAddress(-1, -1);
+        }
+        int frame = vpt.getFrameIdFromPage(page);
+        if(frame < 0){
+            System.out.println("Error - Page not allocated in swap memory");
+            return new MemoryAddress(-1, -1);
+        }
+        return new MemoryAddress(frame, m.getOffset()); // Preserve frame id for swap operations
     }
     
    

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import ur_os.system.SystemOS;
 import java.util.Random;
 import ur_os.memory.MemoryAddress;
+import ur_os.memory.freememorymagament.MemorySlot;
 
 /**
  *
@@ -86,11 +87,28 @@ public class SegmentTable {
         int segment = -1;
         int offset = -1;
         
-        //Include your code here
+        if(locAdd < 0){
+            System.out.println("Error - Invalid logical address request");
+            return new MemoryAddress(-1, -1);
+        }
+        int remaining = locAdd;
+        for (int i = 0; i < segmentTable.size(); i++) {
+            SegmentTableEntry entry = segmentTable.get(i);
+            int limit = entry.getLimit();
+            if(remaining < limit){
+                segment = i;
+                offset = remaining;
+                if(store){
+                    entry.setDirty(); // Mark modified segment on store requests
+                }
+                break;
+            }
+            remaining -= limit;
+        }
         
-        //For Virtual Memory
-        if(store){
-            this.segmentTable.get(segment).setDirty();
+        if(segment == -1){
+            System.out.println("Error - Logical address exceeds segment table size");
+            return new MemoryAddress(-1, -1);
         }
               
         System.out.println("Accessing Segment "+segment+" and offset "+offset);
@@ -99,9 +117,24 @@ public class SegmentTable {
     
     public MemoryAddress getPhysicalMemoryAddressFromLogicalMemoryAddress(MemoryAddress m){
         
-        //Include your code here
+        int segment = m.getDivision();
+        if(segment < 0 || segment >= segmentTable.size()){
+            System.out.println("Error - Invalid segment request");
+            return new MemoryAddress(-1, -1);
+        }
+        SegmentTableEntry entry = segmentTable.get(segment);
+        int offset = m.getOffset();
+        if(offset < 0 || offset >= entry.getLimit()){
+            System.out.println("Error - Offset exceeds segment limit");
+            return new MemoryAddress(-1, -1);
+        }
+        MemorySlot slot = entry.getMemorySlot();
+        if(slot == null){
+            System.out.println("Error - Segment not loaded in memory");
+            return new MemoryAddress(-1, -1);
+        }
         
-        return new MemoryAddress(-1, -1);
+        return new MemoryAddress(slot.getBase(), offset);
     }
     
     public SegmentTableEntry getSegment(int i){

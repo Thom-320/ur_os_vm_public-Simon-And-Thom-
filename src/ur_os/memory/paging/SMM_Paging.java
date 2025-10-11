@@ -72,7 +72,7 @@ public class SMM_Paging extends SystemMemoryManager{
                 return getPhysicalAddress(logicalAddress, pmm, store); //Try again!
             }else{
                 if(store){
-                    pmmp.setPageDirty(pa.getDivision(),true); //Set the accessed page for storage as dirty
+                    pmmp.setPageDirty(la.getDivision(),true); //Use logical page id to mark dirty
                 }
                 return pa.getAddress();
             }
