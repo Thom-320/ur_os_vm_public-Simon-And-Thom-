@@ -211,13 +211,13 @@ Using paging+VM with $F=3$ frames per process and the course workload, we obtain
 \noindent \emph{Note.} No evictions at $F=3$: under this workload, each process's footprint fits within its frame quota; all 7 faults are compulsory/warm-up.
 
 \subsection*{Miss curves}
-Figure~\ref{fig:miss-curves} shows page faults vs. frames $F\in\{2..8\}$ for all policies.
+Figure~\ref{fig:belady-demo} (main text) illustrates Belady's anomaly on a synthetic canonical trace; the course-workload curve is flat and moved to Appendix~\ref{app:flat}.
 
 \begin{figure}[H]
-\centering
-\includegraphics[width=.8\linewidth]{figs/miss_curves_vm.png}
-\caption{Page faults vs. frames $F\in\{2..8\}$ under the course workload; FIFO may exhibit Belady's anomaly under adversarial traces, while LRU is monotonic (stack property).}
-\label{fig:miss-curves}
+  \centering
+  \includegraphics[width=.8\linewidth]{figs/belady_demo.png}
+  \caption{Belady anomaly demo on the canonical sequence $\langle 1,2,3,4,1,2,5,1,2,3,4,5\rangle$: FIFO shows more faults at $F{=}4$ than at $F{=}3$ (anomaly), while LRU is monotonic (stack property). OPT shown as offline lower bound.}
+  \label{fig:belady-demo}
 \end{figure}
 
 %-------------------- Simulation Results --------------------
@@ -243,6 +243,13 @@ The following CPU-level aggregates were invariant across policies in our runs; t
     \bottomrule
   \end{tabular}
 \end{table}
+
+\section{Course-workload Miss Curves} \label{app:flat}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.8\linewidth]{figs/miss_curves_vm.png}
+  \caption{Course workload miss curves ($F\in\{2..8\}$): all policies overlap at 7 faults (mostly compulsory/warm-up) and no evictions at $F{=}3$.}
+\end{figure}
 
 \section{Additional Logs}
 We omit long verbatim logs from the body and provide only short excerpts here when needed; full logs are available in the run output.

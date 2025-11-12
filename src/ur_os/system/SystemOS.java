@@ -419,6 +419,11 @@ public class SystemOS implements Runnable{
         ArrayList<Process> ps;
         
         System.out.println("******SIMULATION START******");
+        // Log seed if provided (determinism hint)
+        String vmSeed = OS.getConfiguredVMSeed();
+        if(vmSeed != null){
+            System.out.println("VM_Seed: "+vmSeed);
+        }
         
         int i=0;
         Process temp_exec;

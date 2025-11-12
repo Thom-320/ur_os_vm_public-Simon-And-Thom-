@@ -14,14 +14,28 @@ public class PlotMissCurves {
         File out = new File(args[1]);
         Map<String, TreeMap<Integer, Integer>> data = new LinkedHashMap<>();
         try(BufferedReader br = new BufferedReader(new FileReader(csv))){
-            String line = br.readLine(); // header
+            String header = br.readLine();
+            if(header == null){ System.err.println("Empty CSV"); return; }
+            String[] cols = header.split(",");
+            int idxPolicy=-1, idxFrames=-1, idxFaults=-1;
+            for(int i=0;i<cols.length;i++){
+                String c = cols[i].trim().toLowerCase();
+                if(c.equals("policy")) idxPolicy = i;
+                else if(c.equals("frames")) idxFrames = i;
+                else if(c.equals("faults") || c.equals("vm_faults")) idxFaults = i;
+            }
+            // Fallback to legacy schema policy,frames,vm_accesses,vm_faults,...
+            if(idxPolicy < 0) idxPolicy = 0;
+            if(idxFrames < 0) idxFrames = 1;
+            if(idxFaults < 0) idxFaults = 3;
+            String line;
             while((line = br.readLine()) != null){
                 if(line.trim().isEmpty()) continue;
                 String[] t = line.split(",");
-                if(t.length < 8) continue;
-                String policy = t[0].trim();
-                int frames = Integer.parseInt(t[1].trim());
-                int faults = Integer.parseInt(t[3].trim());
+                if(t.length <= Math.max(idxPolicy, Math.max(idxFrames, idxFaults))) continue;
+                String policy = t[idxPolicy].trim();
+                int frames = Integer.parseInt(t[idxFrames].trim());
+                int faults = Integer.parseInt(t[idxFaults].trim());
                 data.computeIfAbsent(policy, k -> new TreeMap<>()).put(frames, faults);
             }
         }
@@ -100,4 +114,3 @@ public class PlotMissCurves {
         System.out.println("Wrote figure: "+ out.getAbsolutePath());
     }
 }
-

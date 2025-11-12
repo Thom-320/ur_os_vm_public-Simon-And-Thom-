@@ -374,6 +374,14 @@ public class OS {
         try{ return ProcessVirtualMemoryManagerType.valueOf(v.trim().toUpperCase()); }catch(Exception e){ return PVMM; }
     }
 
+    // Optional seed logger (no behavior change). Precedence: -D > ENV > file > default(null)
+    public static String getConfiguredVMSeed(){
+        String v = System.getProperty("vm.seed", "");
+        if(v == null || v.isEmpty()) v = System.getenv("VM_SEED");
+        if(v == null || v.isEmpty()) v = getCfg("vm.seed");
+        return (v == null || v.isEmpty()) ? null : v.trim();
+    }
+
     // Config file loader (vm.properties in working directory)
     private static java.util.Properties cfgProps = null;
     private static void loadCfg(){
