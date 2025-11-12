@@ -52,6 +52,11 @@ public class OS {
     FreeMemoryManager fvmm;
     Random r;
     boolean lazySwap;
+    // VM metrics (per run)
+    private long vmAccesses = 0;
+    private long vmFaults = 0;
+    private long vmEvictions = 0;
+    private long vmDirtyEvictions = 0;
     
     public static final int MAX_PROCESS_PRIORITY = 10; //Page size in bytes
     public static final int PAGE_SIZE = 64; //Page size in bytes
@@ -60,7 +65,7 @@ public class OS {
     
     public static final ProcessVirtualMemoryManagerType PVMM = ProcessVirtualMemoryManagerType.FIFO;
     public static final int FRAMES_PER_PROCESS = 3; //Maximum number of frames assigned to a process, if virtual memory is on
-    public static final boolean VIRTUAL_MEMORY_MODE_ON = false; //Maximum number of frames assigned to a process, if virtual memory is on
+    public static final boolean VIRTUAL_MEMORY_MODE_ON = false; //Enable per-process frame quota for paging
     
     
     public OS(SystemOS system, CPU cpu, IOQueue ioq){
@@ -70,12 +75,12 @@ public class OS {
         this.cpu = cpu;
         lazySwap = false;//No preloading pages to reduce page faults
         
-         if(SMM == MemoryManagerType.PAGING){
+         if(getConfiguredSMM() == MemoryManagerType.PAGING){
             smm = new SMM_Paging(this);
             fmm = new FreeFramesManager(SystemOS.MEMORY_SIZE);
             fvmm = new FreeFramesManager(SystemOS.SWAP_MEMORY_SIZE);
         }else{
-            switch(SMM){
+            switch(getConfiguredSMM()){
                 case CONTIGUOUS:
                     smm = new SMM_Contiguous(this);
                     break;
@@ -267,7 +272,7 @@ public class OS {
         }
         rq.addProcess(p);
         ProcessMemoryManager pmm;
-        switch (SMM) {
+        switch (getConfiguredSMM()) {
             case PAGING:
                 if(p.getSize() == 0)
                     pmm = new PMM_Paging(p,r.nextInt(MAX_PROC_SIZE-1)+1,0);
@@ -276,8 +281,8 @@ public class OS {
                 
                 PMM_Paging pmmp = (PMM_Paging)pmm;
                
-                if(VIRTUAL_MEMORY_MODE_ON){
-                    pmmp.setAssignedPages(FRAMES_PER_PROCESS);
+                if(getConfiguredVMEnabled()){
+                    pmmp.setAssignedPages(getConfiguredFramesPerProcess());
                 }else{
                     pmmp.setAssignedPages(-1); //The process will get all the pages needed to store the process
                 }
@@ -316,7 +321,7 @@ public class OS {
                 break;
         }
         
-        switch(PVMM){//Assign the Process Virtual Memory Manager, to support the selection of the victim memory division
+        switch(getConfiguredPVMM()){//Assign the Process Virtual Memory Manager, to support the selection of the victim memory division
             case FIFO:
                 p.getPMM().setPVMM(new PVMM_FIFO());
             break;
@@ -336,6 +341,94 @@ public class OS {
         }
         
         
+    }
+
+    // --- VM configuration overrides via -D system properties ---
+    // Configuration precedence: -D system properties > ENV > vm.properties > defaults
+    public static MemoryManagerType getConfiguredSMM(){
+        String v = System.getProperty("smm", "");
+        if(v == null || v.isEmpty()) v = System.getenv("SMM");
+        if(v == null || v.isEmpty()) v = getCfg("smm");
+        if(v == null || v.isEmpty()) return SMM;
+        try{ return MemoryManagerType.valueOf(v.trim().toUpperCase()); }catch(Exception e){ return SMM; }
+    }
+    public static boolean getConfiguredVMEnabled(){
+        String v = System.getProperty("vm.enabled", "");
+        if(v == null || v.isEmpty()) v = System.getenv("VM_ENABLED");
+        if(v == null || v.isEmpty()) v = getCfg("vm.enabled");
+        if(v == null || v.isEmpty()) return VIRTUAL_MEMORY_MODE_ON;
+        return v.equalsIgnoreCase("true") || v.equals("1");
+    }
+    public static int getConfiguredFramesPerProcess(){
+        String v = System.getProperty("vm.frames", "");
+        if(v == null || v.isEmpty()) v = System.getenv("VM_FRAMES");
+        if(v == null || v.isEmpty()) v = getCfg("vm.frames");
+        if(v == null || v.isEmpty()) return FRAMES_PER_PROCESS;
+        try{ int f = Integer.parseInt(v.trim()); return f > 0 ? f : FRAMES_PER_PROCESS; }catch(Exception e){ return FRAMES_PER_PROCESS; }
+    }
+    public static ProcessVirtualMemoryManagerType getConfiguredPVMM(){
+        String v = System.getProperty("vm.policy", "");
+        if(v == null || v.isEmpty()) v = System.getenv("VM_POLICY");
+        if(v == null || v.isEmpty()) v = getCfg("vm.policy");
+        if(v == null || v.isEmpty()) return PVMM;
+        try{ return ProcessVirtualMemoryManagerType.valueOf(v.trim().toUpperCase()); }catch(Exception e){ return PVMM; }
+    }
+
+    // Config file loader (vm.properties in working directory)
+    private static java.util.Properties cfgProps = null;
+    private static void loadCfg(){
+        if(cfgProps != null) return;
+        cfgProps = new java.util.Properties();
+        java.io.File f = new java.io.File("vm.properties");
+        if(f.exists()){
+            try(java.io.FileInputStream fis = new java.io.FileInputStream(f)){
+                cfgProps.load(fis);
+            }catch(Exception e){ /* ignore */ }
+        }
+    }
+    private static String getCfg(String key){
+        loadCfg();
+        return cfgProps.getProperty(key);
+    }
+
+    // --- VM metrics API ---
+    public void resetVMCounters(){
+        vmAccesses = vmFaults = vmEvictions = vmDirtyEvictions = 0;
+    }
+    public void incVMAccess(){ vmAccesses++; }
+    public void incVMFault(){ vmFaults++; }
+    public void incVMEviction(boolean dirty){ vmEvictions++; if(dirty) vmDirtyEvictions++; }
+    public long getVmAccesses(){ return vmAccesses; }
+    public long getVmFaults(){ return vmFaults; }
+    public long getVmEvictions(){ return vmEvictions; }
+    public long getVmDirtyEvictions(){ return vmDirtyEvictions; }
+
+    public void printVMMetricsAndCSV(){
+        // Print human-readable
+        System.out.println("******VM Metrics******");
+        System.out.println("Policy: "+ getConfiguredPVMM());
+        System.out.println("Frames per process: "+ getConfiguredFramesPerProcess());
+        System.out.println("VM Accesses: "+ vmAccesses);
+        System.out.println("VM Faults: "+ vmFaults);
+        System.out.println("VM Evictions: "+ vmEvictions);
+        System.out.println("VM Dirty Evictions: "+ vmDirtyEvictions);
+        double p = vmAccesses > 0 ? ((double)vmFaults)/vmAccesses : 0.0;
+        // Times in ns
+        long Tm = 100; // 100 ns
+        long Tpf = 1_000_000; // 1 ms
+        long TswapIn = 2_000_000; // 2 ms
+        long TswapOut = 2_000_000; // 2 ms
+        // Avoid division by zero when there are no evictions
+        double dirtyFrac = vmEvictions > 0 ? ((double)vmDirtyEvictions)/vmEvictions : 0.0;
+        double EAT = (1.0 - p)*Tm + p*(Tpf + TswapIn + dirtyFrac*TswapOut);
+        System.out.printf("Fault rate: %.6f\n", p);
+        System.out.printf("EAT (ns): %.0f\n", EAT);
+        // CSV row
+        System.out.println(String.format(
+            "VM_CSV: %s,%d,%d,%d,%d,%d,%.6f,%.0f",
+            getConfiguredPVMM().name(), getConfiguredFramesPerProcess(),
+            vmAccesses, vmFaults, vmEvictions, vmDirtyEvictions, p, EAT
+        ));
     }
     
     public MemorySlot getMemorySlot(int size){
@@ -379,7 +472,7 @@ public class OS {
         if(ptSize <= vfreeFrames.getSize()){
             for (int i = 0; i < ptSize; i++) {
                 pmmp.addVFrameID(vfreeFrames.getFrame(),true); //Add frames in swap memory.
-                if(VIRTUAL_MEMORY_MODE_ON){
+                if(getConfiguredVMEnabled()){
                     pmmp.addFrameID(-1); //Create pagetable, without frame allocation
                 }else{
                     pmmp.addFrameID(freeFrames.getFrame(),true); //Create pagetable, with frame allocation
@@ -389,7 +482,7 @@ public class OS {
             System.out.println("Error - Process size larger than available memory");
         }
         
-        if(VIRTUAL_MEMORY_MODE_ON){
+        if(getConfiguredVMEnabled()){
             pmmp.setFrameID(0, freeFrames.getFrame()); //Assign the first page to a frame and it becomes valid
         }
         

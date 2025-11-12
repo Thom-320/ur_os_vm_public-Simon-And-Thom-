@@ -75,6 +75,16 @@ public class SystemOS implements Runnable{
         }
 
         showProcesses();
+        // Log VM seed deterministically if provided
+        try{
+            String seed = System.getProperty("vm.seed");
+            if(seed == null || seed.isEmpty()) seed = System.getenv("VM_SEED");
+            if(seed != null && !seed.isEmpty()){
+                System.out.println("VM_Seed: "+seed);
+            }
+        }catch(Exception e){/* ignore */}
+        // Reset VM counters for a fresh run
+        os.resetVMCounters();
     }
     
     public int getTime(){
@@ -486,13 +496,15 @@ public class SystemOS implements Runnable{
         System.out.println("Average Response Time: "+this.calcAvgResponseTime());
         
         showProcesses();
+        // Print VM metrics and CSV row
+        os.printVMMetricsAndCSV();
         memory.showNotNullBytes();
         
         showFreeMemory();
     }
     
     public void showFreeMemory(){
-        if(OS.SMM == MemoryManagerType.PAGING){
+        if(OS.getConfiguredSMM() == MemoryManagerType.PAGING){
             System.out.println("Free frame number: "+os.fmm.getSize());
         }else{
             System.out.println("Free Memory Slots ("+os.fmm.getSize()+"): ");

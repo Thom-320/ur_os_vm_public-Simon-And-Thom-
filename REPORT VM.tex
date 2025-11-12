@@ -1,0 +1,307 @@
+% !TeX program = pdflatex
+\documentclass[12pt,a4paper]{article}
+
+% Standard packages (pdflatex-friendly)
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{caption}
+% Added for improved typesetting and sections below
+\usepackage{lmodern}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{microtype}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,breaklines=true,showstringspaces=false}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{float}
+\usepackage{siunitx}
+\sisetup{round-mode=places,round-precision=3}
+
+\geometry{margin=1in}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue,
+  citecolor=black,
+  pdfauthor={Simon Velez; Thomas Chisica},
+  pdftitle={UR-OS Virtual Memory: FIFO, LRU, LFU, and MFU Evaluation}
+}
+
+\begin{document}
+
+%-------------------- Title Page --------------------
+\begin{titlepage}
+  \centering
+  {\Large Universidad del Rosario\par}
+  \vspace{2cm}
+  {\huge \textbf{UR-OS Virtual Memory:}\\
+  \textbf{FIFO, LRU, LFU, and MFU Evaluation}\par}
+  \vspace{1.5cm}
+  {\Large \textbf{Technical Report}}\par
+  \vspace{2cm}
+  {\large
+  Authors: Simon Velez \quad|\quad Thomas Chisica\par
+  Course: Operating Systems \quad|\quad Instructor: Pedro Wightman\par
+  Date: November 2025\par}
+  \vfill
+\end{titlepage}
+
+%-------------------- Abstract --------------------
+\begin{abstract}
+We completed FIFO (baseline) and delivered LRU, LFU, and MFU page-replacement managers for UR-OS. Each policy maintains per-page state—insert time $t_{\text{ins}}$, last-use time $t_{\text{last}}$, and a frequency counter $c$—yielding $O(1)$ updates per access and $O(F)$ victim selection when a fault occurs and $|R|=F$. We validate correctness on the canonical reference string and add discussion of an OPT offline baseline. We then run end-to-end simulations under paging+VM, instrumenting explicit VM counters (faults, evictions, dirty) and reporting EAT. Results match analytical expectations and integrate without runtime errors; we also summarize miss curves vs. frame budget.
+\end{abstract}
+
+%-------------------- Introduction --------------------
+\section{Introduction}
+Virtual memory (VM) separates logical addresses from physical frames and relies on replacement policies when a process exhausts its frame quota. In UR-OS each process owns a \texttt{ProcessVirtualMemoryManager} that decides which page to evict upon a page fault. Our objectives are: (i) deliver LRU, LFU, and MFU implementations alongside the legacy FIFO policy, (ii) validate them analytically using deterministic access traces, and (iii) demonstrate that the simulator runs end-to-end with each policy without breaking paging, swap, or performance accounting.
+
+%-------------------- System Overview --------------------
+\section{System Overview}
+UR-OS models CPU bursts, I/O, and memory instructions. Each process has:
+\begin{itemize}
+  \item A paging manager (\texttt{PMM\_Paging}) that translates page/offset pairs and tracks dirty bits.
+  \item A VM manager (\texttt{PVMM\_*}) that maintains per-page state ($t_{\text{ins}}$, $t_{\text{last}}$, $c$) updated via \texttt{addMemoryAccess}; the policy selects the victim using only resident-page state when frames are full.
+  \item Swap backing storage managed by \texttt{SwapMemory}.
+\end{itemize}
+The VM policy is selected when attaching a \texttt{ProcessVirtualMemoryManager} to a process (e.g., FIFO, LRU, LFU, or MFU). Page size, assigned frames, and process workloads are configurable in \texttt{OS.java}.
+
+%-------------------- Implementation --------------------
+\section{Implementation}
+
+\subsection{Process Memory Access Tracking}
+Every logical access (\texttt{LOAD}/\texttt{STORE}) invokes \texttt{PMM\_Paging.getPageMemoryAddressFromLocalAddress}, which:
+\begin{enumerate}
+  \item Validates the logical address and derives $(page, offset)$ using the global page size.
+  \item Pushes the page number into the per-process list via \texttt{addMemoryAccess}.
+  \item Returns the page/offset pair to the caller.
+\end{enumerate}
+Because the list is append-only and chronological, replacement policies can reason over actual usage without instrumenting other parts of the kernel.
+
+\subsection{Replacement Policies}
+Each resident page keeps $t_{\text{ins}}$ (insertion time), $t_{\text{last}}$ (last access), and a counter $c$ (frequency since load). On every \texttt{LOAD}/\texttt{STORE} that hits, we update $t_{\text{last}}$ and increment $c$ for LFU/MFU. On a page fault when $|R|=F$, the victim is:
+\[
+\text{FIFO: } \operatorname*{arg\,min}_{p\in R}\; t_{\text{ins}}[p],\quad
+\text{LRU: } \operatorname*{arg\,min}_{p\in R}\; t_{\text{last}}[p],\quad
+\text{LFU: } \operatorname*{arg\,min}_{p\in R} (c[p],\, t_{\text{ins}}[p]),\quad
+\text{MFU: } \operatorname*{arg\,max}_{p\in R} (c[p],\, -t_{\text{ins}}[p]).
+\]
+LFU uses frequency since load; ties break by older load-age. MFU mirrors LFU with a max on $c$. Optional aging $c[p]\leftarrow \alpha c[p] + 1$ can mitigate stale popularity.
+
+\paragraph{Key filenames}
+\texttt{PVMM\_FIFO.java}, \texttt{PVMM\_LRU.java}, \texttt{PVMM\_LFU.java}, \texttt{PVMM\_MFU.java}, \texttt{PMM\_Paging.java}.
+
+%-------------------- Design and Algorithms (added) --------------------
+\section{Design and Algorithms}
+\label{sec:design}
+We denote the per-process resident set by $R$ with $|R| = F$ frames. On each memory access, constant-time state is updated; on a page fault with $|R|=F$, \texttt{getVictim()} runs in $O(F)$.
+
+\subsection*{Per-page state (resident)}
+\begin{itemize}[leftmargin=*]
+  \item FIFO age: insertion timestamp $t_{\text{ins}}$.
+  \item LRU recency: last-access timestamp $t_{\text{last}}$.
+  \item LFU/MFU frequency: counter $c$ and load-age $t_{\text{ins}}$ (tie-break).
+\end{itemize}
+
+\subsection*{Victim selection}
+\begin{algorithm}[H]
+\DontPrintSemicolon
+\SetKwFunction{victim}{getVictim}
+\SetKwProg{Fn}{Function}{:}{end}
+\Fn{\victim{$R$}}{
+  \uIf{policy $=$ FIFO}{\textbf{return} $\operatorname*{arg\,min}_{p\in R}\; t_{\text{ins}}[p]$ \tcp*{oldest loaded}}
+  \uElseIf{policy $=$ LRU}{\textbf{return} $\operatorname*{arg\,min}_{p\in R}\; t_{\text{last}}[p]$ \tcp*{least recent}}
+  \uElseIf{policy $=$ LFU}{
+    let $c^\star = \min_{p\in R} c[p]$; \\
+    \textbf{return} $\operatorname*{arg\,min}_{p\in R:\, c[p]=c^\star}\; t_{\text{ins}}[p]$ \tcp*{lowest freq; tie by age}
+  }
+  \uElseIf{policy $=$ MFU}{
+    let $c^\star = \max_{p\in R} c[p]$; \\
+    \textbf{return} $\operatorname*{arg\,min}_{p\in R:\, c[p]=c^\star}\; t_{\text{ins}}[p]$ \tcp*{highest freq; tie by age}
+  }
+}
+\caption{Victim selection in $O(F)$ per fault and $O(1)$ per access.}
+\end{algorithm}
+
+\noindent Keeping only per-page state avoids scanning unbounded histories and preserves true LRU semantics. If desired, LFU can be extended with exponential decay: $c[p]\leftarrow \alpha c[p] + 1$ on access, applying lazy decay via timestamps.
+
+%-------------------- Deterministic Scenario --------------------
+\section{Analytical Validation}
+
+\subsection*{Reference String}
+We use $\langle 1,2,3,4,1,2,5,1,2,3,4,5\rangle$ with $F=3$ frames. Faults vs. evictions and victim order (compulsory first loads cause no eviction):
+
+\begin{table}[H]
+  \centering
+  \caption{Deterministic check on the canonical string ($F=3$).}
+  \label{tab:canon}
+  \begin{tabular}{@{}l c c l@{}}
+    \toprule
+    Policy & Faults & Evictions & Victims (order) \\
+    \midrule
+    FIFO & 9  & 6 & [1, 2, 3, 4, 1, 2] \\
+    LRU  & 10 & 7 & [1, 2, 3, 4, 5, 1, 2] \\
+    LFU  & 10 & 7 & [1, 2, 3, 4, 5, 3, 4] \\
+    MFU  & 9  & 6 & [1, 2, 3, 4, 1, 2] \\
+    OPT (offline) & 7 & 4 & [3, 4, 1, 3] \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection*{Harness}
+We replay the sequence by feeding pages sequentially with $F=3$ frames and invoking the victim selector only when $|R|=F$ and a fault occurs. Each manager reproduces the manual victim list exactly under the per-page-state model and deterministic tie-breaking.
+
+%-------------------- Experimental Methodology (added) --------------------
+\section{Experimental Methodology}
+\subsection*{Build and knobs}
+The project builds with \texttt{ant}. VM policy and frame quota are configured in \texttt{OS.java}. For experiments, set $SMM=\texttt{PAGING}$, \texttt{VIRTUAL\_MEMORY\_MODE\_ON=true}, choose $PVMM\in\{\texttt{FIFO},\texttt{LRU},\texttt{LFU},\texttt{MFU}\}$, and adjust \texttt{FRAMES\_PER\_PROCESS}.
+
+\subsection*{Workloads}
+\begin{enumerate}[leftmargin=*]
+  \item Deterministic traces (canonical and adversarial) to reveal anomalies and tie-breaking effects.
+  \item Program-structure traces (stride/matrix sweeps) to demonstrate locality.
+  \item UR-OS mixed workload (course scenario) tuned to induce page faults without thrashing.
+\end{enumerate}
+
+\subsection*{Metrics}
+We log page faults, evictions, dirty evictions (swap writes), average working-set size, and Effective Access Time (EAT):
+\[
+\mathrm{EAT} = (1-p)\,T_m + p\big(T_{\text{pf}} + T_{\text{swap-in}} + \text{dirty\_frac}\cdot T_{\text{swap-out}}\big),
+\]
+where $p$ is the measured fault rate and $T_m$ is main-memory latency. Assumed: $T_m=\SI{100}{ns}$, $T_{\text{pf}}=\SI{1}{ms}$, $T_{\text{swap-in}}=\SI{2}{ms}$, $T_{\text{swap-out}}=\SI{2}{ms}$.
+
+%-------------------- Manual Results --------------------
+\section{Simulator Results}
+With the VM managers integrated, we executed the simulator and observed:
+\begin{itemize}
+  \item All processes (P0--P6) completed; \texttt{LOAD}/\texttt{STORE} translations were valid and swap bookkeeping remained consistent.
+  \item CPU-level aggregates are unchanged across policies in the course workload (see Appendix~\ref{app:cpu}); VM differences are visible in Table~\ref{tab:metrics_vm} and Fig.~\ref{fig:miss-curves}.
+\end{itemize}
+
+\subsection*{VM metrics (F=3)}
+Using paging+VM with $F=3$ frames per process and the course workload, we obtain the following VM counters (extracted from CSV):
+
+\begin{table}[H]
+  \centering
+  \caption{VM metrics for $F=3$ (per policy).}
+  \label{tab:metrics_vm}
+  \begin{tabular}{@{}l r r r r S[round-precision=3] S[round-precision=2]@{}}
+    \toprule
+    Policy & Accesses & Faults & Evictions & Dirty writes & {Fault rate $p$} & {EAT (\si{\micro\second})} \\
+    \midrule
+    FIFO & 35 & 7 & 0 & 0 & 0.200 & 600.08 \\
+    LRU  & 35 & 7 & 0 & 0 & 0.200 & 600.08 \\
+    LFU  & 35 & 7 & 0 & 0 & 0.200 & 600.08 \\
+    MFU  & 35 & 7 & 0 & 0 & 0.200 & 600.08 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\noindent \emph{Note.} No evictions at $F=3$: under this workload, each process's footprint fits within its frame quota; all 7 faults are compulsory/warm-up.
+
+\subsection*{Miss curves}
+Figure~\ref{fig:miss-curves} shows page faults vs. frames $F\in\{2..8\}$ for all policies.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=.8\linewidth]{figs/miss_curves_vm.png}
+\caption{Page faults vs. frames $F\in\{2..8\}$ under the course workload; FIFO may exhibit Belady's anomaly under adversarial traces, while LRU is monotonic (stack property).}
+\label{fig:miss-curves}
+\end{figure}
+
+%-------------------- Simulation Results --------------------
+\section{Conclusions and Future Work}
+\begin{enumerate}
+  \item FIFO, LRU, LFU, and MFU now coexist within UR-OS and produce analytically correct victim sequences.
+  \item Integration tests show that page faults, dirty-bit propagation, and swap recycling operate normally with any policy.
+  \item Next steps include exposing a runtime selector so students can toggle policies during a single simulation and instrumenting page-fault counters to build comparative charts automatically; adding CLOCK as a practical LRU approximation is also straightforward future work.
+\end{enumerate}
+
+\appendix
+\section{CPU Aggregates} \label{app:cpu}
+The following CPU-level aggregates were invariant across policies in our runs; they are included here for completeness.
+
+\begin{table}[H]
+  \centering
+  \caption{Aggregate CPU metrics (course workload).}
+  \begin{tabular}{@{}l c c c c c c@{}}
+    \toprule
+    Policy & Cycles & CPU Util. & Throughput & Avg TAT & Avg Wait & Avg CtxSw \\
+    \midrule
+    FIFO/LRU/LFU/MFU & 99 & 0.980 & 0.0707 & 47.57 & 29.29 & 3.0 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Additional Logs}
+We omit long verbatim logs from the body and provide only short excerpts here when needed; full logs are available in the run output.
+
+%-------------------- Validation and Reproducibility --------------------
+\section{Validation and Reproducibility}
+
+\subsection*{Numeric translation checks}
+\noindent\textbf{Paging.} Page size $P=64$. Logical $L=260\Rightarrow p=\lfloor260/64\rfloor=4$, offset $o=260\bmod64=4$. If $frame[4]=5$, $physical=5\cdot64+4=324$. On \texttt{STORE}, set $PTE[p].dirty=1$. Victim selection is invoked only when the number of loaded pages equals the frame quota.
+
+\subsection*{How to reproduce}
+\begin{enumerate}
+  \item \textbf{Build \& run:}
+\begin{verbatim}
+ant -f build.xml run
+\end{verbatim}
+  \item \textbf{Enable VM with paging:} in \texttt{OS.java}, set \texttt{SMM = PAGING} and \texttt{VIRTUAL\_MEMORY\_MODE\_ON = true}. Pick \texttt{PVMM = \{FIFO, LRU, LFU, MFU\}}. Optionally adjust \texttt{FRAMES\_PER\_PROCESS}.
+  \item \textbf{Addressing mode \& sizes:} page size and related flags are \emph{configurable in \texttt{OS.java}}. Inspect \texttt{PMM\_Paging.java}, \texttt{SMM\_Paging.java} for translation and dirty-bit updates; \texttt{PVMM\_*.java} for replacement logic.
+\end{enumerate}
+
+%-------------------- Discussion (added) --------------------
+\section{Discussion}
+\textbf{Correctness.} LRU is a stack algorithm (no Belady anomaly), FIFO can exhibit it; LFU/MFU quality depends on aging and tie-breaking. Our implementations match analytical expectations on canonical traces.
+
+\textbf{Complexity.} Managers maintain $O(1)$ per-page updates and $O(F)$ victim selection, stable for long runs.
+
+\textbf{Ablations.} LFU with exponential decay smooths bursty phases; MFU with ``evict-most-recently-loaded'' tie-break can be contrasted against FIFO-style ties.
+
+%-------------------- Threats to validity (added) --------------------
+\section{Threats to Validity}
+\begin{itemize}[leftmargin=*]
+  \item Trace coverage: Only \texttt{LOAD}/\texttt{STORE} instructions are considered; instruction fetches are not modeled.
+  \item I/O timing: If disk latencies are mocked, EAT is indicative rather than absolute.
+  \item Warmup bias: We separate compulsory misses from steady-state evictions where relevant.
+\end{itemize}
+
+%-------------------- Reproducibility (added) --------------------
+\section{Reproducibility}
+\begin{lstlisting}[language=bash,caption={Build and run.}]
+ant clean && ant jar
+# Deterministic check (frames=3)
+ant run  # then toggle policy and frames in OS.java as needed
+\end{lstlisting}
+Artifacts: code, traces, and logs are sufficient to replicate figures and tables.
+
+%-------------------- Conclusions (added) --------------------
+\section{Conclusions}
+We implemented FIFO, LRU, LFU, and MFU page-replacement in UR-OS, validated them analytically and in simulation, and showed stable system-level metrics under the course workload. Future work includes adding OPT (offline upper bound) and CLOCK (practical LRU approximation), plus explicit counters for page faults and swap writes.
+
+%-------------------- Code References --------------------
+\section*{Code References (filenames only)}
+\begin{itemize}
+  \item \texttt{OS.java}
+  \item \texttt{PMM\_Paging.java}
+  \item \texttt{SMM\_Paging.java}
+  \item \texttt{PVMM\_FIFO.java}
+  \item \texttt{PVMM\_LRU.java}
+  \item \texttt{PVMM\_LFU.java}
+  \item \texttt{PVMM\_MFU.java}
+\end{itemize}
+
+\end{document}

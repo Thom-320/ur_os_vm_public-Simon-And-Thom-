@@ -18,7 +18,7 @@ public class PVMM_FIFO extends ProcessVirtualMemoryManager{
     
     @Override
     public int getVictim(LinkedList<Integer> memoryAccesses, int loaded) {
-        LinkedList<Integer> pages = new LinkedList();
+        LinkedList<Integer> pages = new LinkedList<>();
         int size = memoryAccesses.size()-1;
         
         while(size >= 0 && pages.size()<loaded){

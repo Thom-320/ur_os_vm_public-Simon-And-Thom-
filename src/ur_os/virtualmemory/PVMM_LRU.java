@@ -18,10 +18,23 @@ public class PVMM_LRU extends ProcessVirtualMemoryManager{
     
     @Override
     public int getVictim(LinkedList<Integer> memoryAccesses, int loaded) {
-        
-        //ToDo
-        
-        return -1;
+        if (memoryAccesses == null || memoryAccesses.isEmpty() || loaded <= 0) {
+            return -1;
+        }
+
+        java.util.HashSet<Integer> activePages = new java.util.HashSet<>(Math.max(loaded * 2, 4));
+        int[] order = new int[loaded];
+        int tracked = 0;
+
+        java.util.Iterator<Integer> backwards = memoryAccesses.descendingIterator();
+        while (backwards.hasNext() && tracked < loaded) {
+            int page = backwards.next();
+            if (activePages.add(page)) {
+                order[tracked++] = page;
+            }
+        }
+
+        return tracked == 0 ? -1 : order[tracked - 1];
     }
     
 }

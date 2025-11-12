@@ -29,6 +29,8 @@ public class SMM_Paging extends SystemMemoryManager{
         
         if(pmm.getType() == MemoryManagerType.PAGING){
             PMM_Paging pmmp = (PMM_Paging)pmm;
+            // Count every memory access reaching the paging path
+            getOS().incVMAccess();
         
             //INCLUDE THE STORE VALUE TO MARK DIRTY THE PAGE
             MemoryAddress la = pmmp.getPageMemoryAddressFromLocalAddress(logicalAddress);
@@ -39,6 +41,7 @@ public class SMM_Paging extends SystemMemoryManager{
             //Only valid for Virtual Memory
             if(pa == null){
                 //There was a page fault, so the page needs to be brought to memory from swap
+                getOS().incVMFault();
                 
                 int pageVictim = pmmp.getVictim(); //Find a page that needs to leave memory if there is no space
                 int frameVictimInSwap;
@@ -59,7 +62,9 @@ public class SMM_Paging extends SystemMemoryManager{
                 MemoryPageExchange mpe = new MemoryPageExchange(pageVictim, frameVictimInSwap, frameVictim, pageToLoad, frameToLoadInSwap);
                 
                 if(pageVictim != -1){ //If there was a page identified to leave memory, then it may have to be sent to swap memory
-                    if(pmmp.isPageDirty(pageVictim)){ //If the page is dirty, then it must be updated in the swap memory
+                    boolean dirtyVictim = pmmp.isPageDirty(pageVictim);
+                    getOS().incVMEviction(dirtyVictim);
+                    if(dirtyVictim){ //If the page is dirty, then it must be updated in the swap memory
                         mpe.setFullExchange(true); //This is a full exchange, so the frame does not have to be freed
                         getOS().interrupt(InterruptType.STORE_PAGE, pmmp.getProcess(),mpe); //Send the frame in memory of page la to swap memory. All the information needed is in mpe
                         pmmp.setPageValid(mpe.getFrameVictim(),false); //Set the newly unloaded page as invalid

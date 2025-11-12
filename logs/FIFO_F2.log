@@ -1,0 +1,933 @@
+Buildfile: /Users/thom/Library/Mobile Documents/com~apple~CloudDocs/Universidad/OS/ur_os_vm_public-Simon-And-Thom-/build.xml
+
+-pre-init:
+
+-init-private:
+
+-init-user:
+
+-init-project:
+
+-init-macrodef-property:
+
+-init-modules-supported:
+
+-do-init:
+
+-post-init:
+
+-init-check:
+
+-init-ap-cmdline-properties:
+
+-init-macrodef-modulename:
+
+-init-source-module-properties:
+
+-init-macrodef-javac-with-module:
+
+-init-macrodef-javac-with-processors:
+
+-init-macrodef-javac-without-processors:
+
+-init-macrodef-javac:
+
+-init-macrodef-test-impl:
+
+-init-macrodef-junit-init:
+
+-init-test-properties:
+
+-init-macrodef-junit-prototype-with-module:
+
+-init-macrodef-junit-prototype-without-module:
+
+-init-macrodef-junit-single:
+
+-init-macrodef-junit-batch:
+
+-init-macrodef-junit:
+
+-init-macrodef-junit-impl:
+
+-init-macrodef-testng:
+
+-init-macrodef-testng-impl:
+
+-init-macrodef-test:
+
+-init-macrodef-junit-debug-impl:
+
+-init-macrodef-test-debug-junit:
+
+-init-macrodef-testng-debug:
+
+-init-macrodef-testng-debug-impl:
+
+-init-macrodef-test-debug-testng:
+
+-init-macrodef-test-debug:
+
+-init-debug-args:
+
+-init-macrodef-nbjpda:
+
+-init-macrodef-debug:
+
+-init-macrodef-java-with-module:
+
+-init-macrodef-java-with-unnamed-module:
+
+-init-macrodef-java-without-module:
+
+-init-macrodef-java:
+
+-init-presetdef-jar:
+
+-init-ap-cmdline-supported:
+
+-init-ap-cmdline:
+
+init:
+
+-deps-jar-init:
+   [delete] Deleting: /Users/thom/Library/Mobile Documents/com~apple~CloudDocs/Universidad/OS/ur_os_vm_public-Simon-And-Thom-/build/built-jar.properties
+
+deps-jar:
+
+-warn-already-built-jar:
+[propertyfile] Updating property file: /Users/thom/Library/Mobile Documents/com~apple~CloudDocs/Universidad/OS/ur_os_vm_public-Simon-And-Thom-/build/built-jar.properties
+
+-check-automatic-build:
+
+-clean-after-automatic-build:
+
+-verify-automatic-build:
+
+-pre-pre-compile:
+
+-pre-compile:
+
+-copy-persistence-xml:
+
+-compile-depend:
+
+-do-compile:
+
+-post-compile:
+
+compile:
+
+run:
+     [java] ************************************
+     [java]          UR_OS V.0.0.5.3
+     [java] ************************************
+     [java] Process list:
+     [java] PID: 0 Size: 0 t_init: 0 t_finished: -1
+     [java] PMM:
+     [java] MemSlot: null vSlot: Base: 0 Size: 0 Valid:false Dirty: false
+     [java] PIL:
+     [java] Current instruction: 0
+     [java] Instruction list: C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false LOAD,40,0
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 4 RC: 4 T: MEMORY F: false STORE,180,21
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: END F: false
+     [java] 
+     [java] PID: 1 Size: 0 t_init: 4 t_finished: -1
+     [java] PMM:
+     [java] MemSlot: null vSlot: Base: 0 Size: 0 Valid:false Dirty: false
+     [java] PIL:
+     [java] Current instruction: 0
+     [java] Instruction list: C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false LOAD,60,0
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: END F: false
+     [java] 
+     [java] PID: 2 Size: 0 t_init: 8 t_finished: -1
+     [java] PMM:
+     [java] MemSlot: null vSlot: Base: 0 Size: 0 Valid:false Dirty: false
+     [java] PIL:
+     [java] Current instruction: 0
+     [java] Instruction list: C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false STORE,96,11
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 4 RC: 4 T: MEMORY F: false LOAD,150,0
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: END F: false
+     [java] 
+     [java] PID: 3 Size: 0 t_init: 12 t_finished: -1
+     [java] PMM:
+     [java] MemSlot: null vSlot: Base: 0 Size: 0 Valid:false Dirty: false
+     [java] PIL:
+     [java] Current instruction: 0
+     [java] Instruction list: C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 4 RC: 4 T: IO F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false STORE,88,7
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: END F: false
+     [java] 
+     [java] PID: 4 Size: 0 t_init: 18 t_finished: -1
+     [java] PMM:
+     [java] MemSlot: null vSlot: Base: 0 Size: 0 Valid:false Dirty: false
+     [java] PIL:
+     [java] Current instruction: 0
+     [java] Instruction list: C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 5 RC: 5 T: MEMORY F: false LOAD,220,0
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false STORE,48,19
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: END F: false
+     [java] 
+     [java] PID: 5 Size: 0 t_init: 30 t_finished: -1
+     [java] PMM:
+     [java] MemSlot: null vSlot: Base: 0 Size: 0 Valid:false Dirty: false
+     [java] PIL:
+     [java] Current instruction: 0
+     [java] Instruction list: C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false LOAD,36,0
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false STORE,72,5
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: END F: false
+     [java] 
+     [java] PID: 6 Size: 0 t_init: 72 t_finished: -1
+     [java] PMM:
+     [java] MemSlot: null vSlot: Base: 0 Size: 0 Valid:false Dirty: false
+     [java] PIL:
+     [java] Current instruction: 0
+     [java] Instruction list: C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false LOAD,82,0
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false STORE,40,9
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: END F: false
+     [java] 
+     [java] 
+     [java] ******SIMULATION START******
+     [java] ******Clock: 0******
+     [java] Process Created: 0
+     [java] PID: 0 Size: 260 t_init: 0 t_finished: -1
+     [java] PMM:
+     [java] Page: 0 Frame: 0 Valid: true Dirty: false
+     [java] Page: 1 Frame: -1 Valid: false Dirty: false
+     [java] Page: 2 Frame: -1 Valid: false Dirty: false
+     [java] Page: 3 Frame: -1 Valid: false Dirty: false
+     [java] Page: 4 Frame: -1 Valid: false Dirty: false
+     [java] 
+     [java] PIL:
+     [java] Current instruction: 0
+     [java] Instruction list: C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false LOAD,40,0
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 4 RC: 4 T: MEMORY F: false STORE,180,21
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: END F: false
+     [java] 
+     [java] Free frame number: 16383
+     [java] Executing CPU instruction
+     [java] ******Clock: 1******
+     [java] Executing CPU instruction
+     [java] ******Clock: 2******
+     [java] Executing CPU instruction
+     [java] ******Clock: 3******
+     [java] Executing CPU instruction
+     [java] ******Clock: 4******
+     [java] Process Created: 1
+     [java] PID: 1 Size: 120 t_init: 4 t_finished: -1
+     [java] PMM:
+     [java] Page: 0 Frame: 1 Valid: true Dirty: false
+     [java] Page: 1 Frame: -1 Valid: false Dirty: false
+     [java] 
+     [java] PIL:
+     [java] Current instruction: 0
+     [java] Instruction list: C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false LOAD,60,0
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: END F: false
+     [java] 
+     [java] Free frame number: 16382
+     [java] Executing Memory instruction
+     [java] ******Clock: 5******
+     [java] Executing CPU instruction
+     [java] Process 0 is executing C: 3 RC: 2 T: MEMORY F: false LOAD,40,0
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION - 1 cycles left
+     [java] ******Clock: 6******
+     [java] Executing CPU instruction
+     [java] Process 0 is executing C: 3 RC: 1 T: MEMORY F: false LOAD,40,0
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION DONE
+     [java] ******Clock: 7******
+     [java] Executing CPU instruction
+     [java] ******Clock: 8******
+     [java] Process Created: 2
+     [java] PID: 2 Size: 200 t_init: 8 t_finished: -1
+     [java] PMM:
+     [java] Page: 0 Frame: 2 Valid: true Dirty: false
+     [java] Page: 1 Frame: -1 Valid: false Dirty: false
+     [java] Page: 2 Frame: -1 Valid: false Dirty: false
+     [java] Page: 3 Frame: -1 Valid: false Dirty: false
+     [java] 
+     [java] PIL:
+     [java] Current instruction: 0
+     [java] Instruction list: C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false STORE,96,11
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 4 RC: 4 T: MEMORY F: false LOAD,150,0
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: END F: false
+     [java] 
+     [java] Free frame number: 16381
+     [java] Executing CPU instruction
+     [java] ******Clock: 9******
+     [java] Executing CPU instruction
+     [java] ******Clock: 10******
+     [java] Executing Memory instruction
+     [java] ******Clock: 11******
+     [java] Executing CPU instruction
+     [java] Process 1 is executing C: 3 RC: 2 T: MEMORY F: false LOAD,60,0
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION - 1 cycles left
+     [java] ******Clock: 12******
+     [java] Process Created: 3
+     [java] PID: 3 Size: 140 t_init: 12 t_finished: -1
+     [java] PMM:
+     [java] Page: 0 Frame: 3 Valid: true Dirty: false
+     [java] Page: 1 Frame: -1 Valid: false Dirty: false
+     [java] Page: 2 Frame: -1 Valid: false Dirty: false
+     [java] 
+     [java] PIL:
+     [java] Current instruction: 0
+     [java] Instruction list: C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 4 RC: 4 T: IO F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false STORE,88,7
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: END F: false
+     [java] 
+     [java] Free frame number: 16380
+     [java] Executing CPU instruction
+     [java] Process 1 is executing C: 3 RC: 1 T: MEMORY F: false LOAD,60,0
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION DONE
+     [java] ******Clock: 13******
+     [java] Executing CPU instruction
+     [java] ******Clock: 14******
+     [java] Executing CPU instruction
+     [java] ******Clock: 15******
+     [java] Executing CPU instruction
+     [java] ******Clock: 16******
+     [java] Executing CPU instruction
+     [java] ******Clock: 17******
+     [java] Executing Memory instruction
+     [java] ******Clock: 18******
+     [java] Process Created: 4
+     [java] PID: 4 Size: 320 t_init: 18 t_finished: -1
+     [java] PMM:
+     [java] Page: 0 Frame: 4 Valid: true Dirty: false
+     [java] Page: 1 Frame: -1 Valid: false Dirty: false
+     [java] Page: 2 Frame: -1 Valid: false Dirty: false
+     [java] Page: 3 Frame: -1 Valid: false Dirty: false
+     [java] Page: 4 Frame: -1 Valid: false Dirty: false
+     [java] Page: 5 Frame: -1 Valid: false Dirty: false
+     [java] 
+     [java] PIL:
+     [java] Current instruction: 0
+     [java] Instruction list: C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 5 RC: 5 T: MEMORY F: false LOAD,220,0
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false STORE,48,19
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: END F: false
+     [java] 
+     [java] Free frame number: 16379
+     [java] Executing CPU instruction
+     [java] Process 0 is executing C: 4 RC: 3 T: MEMORY F: false STORE,180,21
+     [java] The data 21 is stored in: 372
+     [java] MEMORY OPERATION EXECUTION - 2 cycles left
+     [java] ******Clock: 19******
+     [java] Executing CPU instruction
+     [java] Process 0 is executing C: 4 RC: 2 T: MEMORY F: false STORE,180,21
+     [java] The data 21 is stored in: 372
+     [java] MEMORY OPERATION EXECUTION - 1 cycles left
+     [java] ******Clock: 20******
+     [java] Executing CPU instruction
+     [java] Process 0 is executing C: 4 RC: 1 T: MEMORY F: false STORE,180,21
+     [java] The data 21 is stored in: 372
+     [java] MEMORY OPERATION EXECUTION DONE
+     [java] ******Clock: 21******
+     [java] Executing Memory instruction
+     [java] ******Clock: 22******
+     [java] Executing CPU instruction
+     [java] Process 2 is executing C: 3 RC: 2 T: MEMORY F: false STORE,96,11
+     [java] The data 11 is stored in: 416
+     [java] MEMORY OPERATION EXECUTION - 1 cycles left
+     [java] ******Clock: 23******
+     [java] Executing CPU instruction
+     [java] Process 2 is executing C: 3 RC: 1 T: MEMORY F: false STORE,96,11
+     [java] The data 11 is stored in: 416
+     [java] MEMORY OPERATION EXECUTION DONE
+     [java] ******Clock: 24******
+     [java] Executing IO instruction
+     [java] ******Clock: 25******
+     [java] Executing CPU instruction
+     [java] ******Clock: 26******
+     [java] Executing CPU instruction
+     [java] ******Clock: 27******
+     [java] Executing CPU instruction
+     [java] ******Clock: 28******
+     [java] Process Terminated: 1 120
+     [java] Free frame number: 16378
+     [java] ******Clock: 29******
+     [java] Executing CPU instruction
+     [java] ******Clock: 30******
+     [java] Process Created: 5
+     [java] PID: 5 Size: 110 t_init: 30 t_finished: -1
+     [java] PMM:
+     [java] Page: 0 Frame: 1 Valid: true Dirty: false
+     [java] Page: 1 Frame: -1 Valid: false Dirty: false
+     [java] 
+     [java] PIL:
+     [java] Current instruction: 0
+     [java] Instruction list: C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false LOAD,36,0
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false STORE,72,5
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: END F: false
+     [java] 
+     [java] Free frame number: 16377
+     [java] Executing CPU instruction
+     [java] ******Clock: 31******
+     [java] Executing CPU instruction
+     [java] ******Clock: 32******
+     [java] Executing CPU instruction
+     [java] ******Clock: 33******
+     [java] Executing CPU instruction
+     [java] ******Clock: 34******
+     [java] Executing CPU instruction
+     [java] ******Clock: 35******
+     [java] Executing Memory instruction
+     [java] ******Clock: 36******
+     [java] Executing CPU instruction
+     [java] Process 4 is executing C: 5 RC: 4 T: MEMORY F: false LOAD,220,0
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION - 3 cycles left
+     [java] ******Clock: 37******
+     [java] Executing CPU instruction
+     [java] Process 4 is executing C: 5 RC: 3 T: MEMORY F: false LOAD,220,0
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION - 2 cycles left
+     [java] ******Clock: 38******
+     [java] Executing CPU instruction
+     [java] Process 4 is executing C: 5 RC: 2 T: MEMORY F: false LOAD,220,0
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION - 1 cycles left
+     [java] ******Clock: 39******
+     [java] Executing CPU instruction
+     [java] Process 4 is executing C: 5 RC: 1 T: MEMORY F: false LOAD,220,0
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION DONE
+     [java] ******Clock: 40******
+     [java] Process Terminated: 0 260
+     [java] Free frame number: 16378
+     [java] ******Clock: 41******
+     [java] Executing CPU instruction
+     [java] ******Clock: 42******
+     [java] Executing CPU instruction
+     [java] ******Clock: 43******
+     [java] Executing CPU instruction
+     [java] ******Clock: 44******
+     [java] Executing CPU instruction
+     [java] ******Clock: 45******
+     [java] Executing Memory instruction
+     [java] ******Clock: 46******
+     [java] Executing CPU instruction
+     [java] Process 2 is executing C: 4 RC: 3 T: MEMORY F: false LOAD,150,0
+     [java] Error - Including erroneous page number
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION - 2 cycles left
+     [java] ******Clock: 47******
+     [java] Executing CPU instruction
+     [java] Process 2 is executing C: 4 RC: 2 T: MEMORY F: false LOAD,150,0
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION - 1 cycles left
+     [java] ******Clock: 48******
+     [java] Executing CPU instruction
+     [java] Process 2 is executing C: 4 RC: 1 T: MEMORY F: false LOAD,150,0
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION DONE
+     [java] ******Clock: 49******
+     [java] Executing CPU instruction
+     [java] ******Clock: 50******
+     [java] Executing CPU instruction
+     [java] ******Clock: 51******
+     [java] Executing Memory instruction
+     [java] ******Clock: 52******
+     [java] Executing CPU instruction
+     [java] Process 3 is executing C: 3 RC: 2 T: MEMORY F: false STORE,88,7
+     [java] The data 7 is stored in: 24
+     [java] MEMORY OPERATION EXECUTION - 1 cycles left
+     [java] ******Clock: 53******
+     [java] Executing CPU instruction
+     [java] Process 3 is executing C: 3 RC: 1 T: MEMORY F: false STORE,88,7
+     [java] The data 7 is stored in: 24
+     [java] MEMORY OPERATION EXECUTION DONE
+     [java] ******Clock: 54******
+     [java] Executing Memory instruction
+     [java] ******Clock: 55******
+     [java] Executing CPU instruction
+     [java] Process 5 is executing C: 3 RC: 2 T: MEMORY F: false LOAD,36,0
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION - 1 cycles left
+     [java] ******Clock: 56******
+     [java] Executing CPU instruction
+     [java] Process 5 is executing C: 3 RC: 1 T: MEMORY F: false LOAD,36,0
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION DONE
+     [java] ******Clock: 57******
+     [java] Executing CPU instruction
+     [java] ******Clock: 58******
+     [java] Executing CPU instruction
+     [java] ******Clock: 59******
+     [java] Executing Memory instruction
+     [java] ******Clock: 60******
+     [java] Executing CPU instruction
+     [java] Process 4 is executing C: 3 RC: 2 T: MEMORY F: false STORE,48,19
+     [java] The data 19 is stored in: 304
+     [java] MEMORY OPERATION EXECUTION - 1 cycles left
+     [java] ******Clock: 61******
+     [java] Executing CPU instruction
+     [java] Process 4 is executing C: 3 RC: 1 T: MEMORY F: false STORE,48,19
+     [java] The data 19 is stored in: 304
+     [java] MEMORY OPERATION EXECUTION DONE
+     [java] ******Clock: 62******
+     [java] Executing CPU instruction
+     [java] ******Clock: 63******
+     [java] Executing CPU instruction
+     [java] ******Clock: 64******
+     [java] Executing CPU instruction
+     [java] ******Clock: 65******
+     [java] Process Terminated: 2 200
+     [java] Free frame number: 16380
+     [java] ******Clock: 66******
+     [java] Executing CPU instruction
+     [java] ******Clock: 67******
+     [java] Executing CPU instruction
+     [java] ******Clock: 68******
+     [java] Executing CPU instruction
+     [java] ******Clock: 69******
+     [java] Executing CPU instruction
+     [java] ******Clock: 70******
+     [java] Process Terminated: 3 140
+     [java] Free frame number: 16382
+     [java] ******Clock: 71******
+     [java] Executing CPU instruction
+     [java] ******Clock: 72******
+     [java] Process Created: 6
+     [java] PID: 6 Size: 130 t_init: 72 t_finished: -1
+     [java] PMM:
+     [java] Page: 0 Frame: 0 Valid: true Dirty: false
+     [java] Page: 1 Frame: -1 Valid: false Dirty: false
+     [java] Page: 2 Frame: -1 Valid: false Dirty: false
+     [java] 
+     [java] PIL:
+     [java] Current instruction: 0
+     [java] Instruction list: C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false LOAD,82,0
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 3 RC: 3 T: MEMORY F: false STORE,40,9
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: CPU F: false
+     [java] C: 1 RC: 1 T: END F: false
+     [java] 
+     [java] Free frame number: 16381
+     [java] Executing CPU instruction
+     [java] ******Clock: 73******
+     [java] Executing CPU instruction
+     [java] ******Clock: 74******
+     [java] Executing Memory instruction
+     [java] ******Clock: 75******
+     [java] Executing CPU instruction
+     [java] Process 5 is executing C: 3 RC: 2 T: MEMORY F: false STORE,72,5
+     [java] The data 5 is stored in: 136
+     [java] MEMORY OPERATION EXECUTION - 1 cycles left
+     [java] ******Clock: 76******
+     [java] Executing CPU instruction
+     [java] Process 5 is executing C: 3 RC: 1 T: MEMORY F: false STORE,72,5
+     [java] The data 5 is stored in: 136
+     [java] MEMORY OPERATION EXECUTION DONE
+     [java] ******Clock: 77******
+     [java] Executing CPU instruction
+     [java] ******Clock: 78******
+     [java] Executing CPU instruction
+     [java] ******Clock: 79******
+     [java] Executing CPU instruction
+     [java] ******Clock: 80******
+     [java] Executing CPU instruction
+     [java] ******Clock: 81******
+     [java] Process Terminated: 4 320
+     [java] Free frame number: 16382
+     [java] ******Clock: 82******
+     [java] Executing CPU instruction
+     [java] ******Clock: 83******
+     [java] Executing CPU instruction
+     [java] ******Clock: 84******
+     [java] Executing CPU instruction
+     [java] ******Clock: 85******
+     [java] Executing Memory instruction
+     [java] ******Clock: 86******
+     [java] Executing CPU instruction
+     [java] Process 6 is executing C: 3 RC: 2 T: MEMORY F: false LOAD,82,0
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION - 1 cycles left
+     [java] ******Clock: 87******
+     [java] Executing CPU instruction
+     [java] Process 6 is executing C: 3 RC: 1 T: MEMORY F: false LOAD,82,0
+     [java] The obtained data is: 0
+     [java] MEMORY OPERATION EXECUTION DONE
+     [java] ******Clock: 88******
+     [java] Process Terminated: 5 110
+     [java] Free frame number: 16383
+     [java] ******Clock: 89******
+     [java] Executing CPU instruction
+     [java] ******Clock: 90******
+     [java] Executing CPU instruction
+     [java] ******Clock: 91******
+     [java] Executing CPU instruction
+     [java] ******Clock: 92******
+     [java] Executing CPU instruction
+     [java] ******Clock: 93******
+     [java] Executing Memory instruction
+     [java] ******Clock: 94******
+     [java] Process 6 is executing C: 3 RC: 2 T: MEMORY F: false STORE,40,9
+     [java] The data 9 is stored in: 40
+     [java] MEMORY OPERATION EXECUTION - 1 cycles left
+     [java] ******Clock: 95******
+     [java] Process 6 is executing C: 3 RC: 1 T: MEMORY F: false STORE,40,9
+     [java] The data 9 is stored in: 40
+     [java] MEMORY OPERATION EXECUTION DONE
+     [java] ******Clock: 96******
+     [java] Executing CPU instruction
+     [java] ******Clock: 97******
+     [java] Executing CPU instruction
+     [java] ******Clock: 98******
+     [java] Process Terminated: 6 130
+     [java] Free frame number: 16385
+     [java] ******SIMULATION FINISHES******
+     [java] ******Process Execution******
+     [java] 0 0 0 0 0 1 1 1 1 1 1 0 0 0 0 0 0 0 2 2 2 2 3 3 3 1 1 1 1 4 4 4 4 4 4 4 0 0 0 0 0 2 2 2 2 2 3 3 3 3 3 3 5 5 5 4 4 4 4 4 2 2 2 2 2 2 3 3 3 3 3 5 5 5 5 4 4 4 4 4 4 4 6 6 6 6 5 5 5 6 6 6 6 6 -1 -1 6 6 6 
+     [java] ******Performance Indicators******
+     [java] Total execution cycles: 99
+     [java] CPU Utilization: 0.9797979797979798
+     [java] Throughput: 0.0707070707070707
+     [java] Average Turnaround Time: 47.57142857142857
+     [java] Average Waiting Time: 29.285714285714285
+     [java] Average Context Switches: 3.0
+     [java] Average Response Time: 9.142857142857142
+     [java] Process list:
+     [java] PID: 0 Size: 260 t_init: 0 t_finished: 41
+     [java] PMM:
+     [java] Page: 0 Frame: 0 Valid: true Dirty: false
+     [java] Page: 1 Frame: -1 Valid: false Dirty: false
+     [java] Page: 2 Frame: 5 Valid: true Dirty: true
+     [java] Page: 3 Frame: -1 Valid: false Dirty: false
+     [java] Page: 4 Frame: -1 Valid: false Dirty: false
+     [java] 
+     [java] PIL:
+     [java] Current instruction: 17
+     [java] Instruction list: C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 3 RC: 0 T: MEMORY F: true LOAD,40,0
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 4 RC: 0 T: MEMORY F: true STORE,180,21
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: END F: true
+     [java] 
+     [java] PID: 1 Size: 120 t_init: 4 t_finished: 29
+     [java] PMM:
+     [java] Page: 0 Frame: 1 Valid: true Dirty: false
+     [java] Page: 1 Frame: -1 Valid: false Dirty: false
+     [java] 
+     [java] PIL:
+     [java] Current instruction: 10
+     [java] Instruction list: C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 3 RC: 0 T: MEMORY F: true LOAD,60,0
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: END F: true
+     [java] 
+     [java] PID: 2 Size: 200 t_init: 8 t_finished: 66
+     [java] PMM:
+     [java] Page: 0 Frame: 2 Valid: true Dirty: false
+     [java] Page: 1 Frame: 6 Valid: true Dirty: true
+     [java] Page: 2 Frame: 6 Valid: true Dirty: false
+     [java] Page: 3 Frame: -1 Valid: false Dirty: false
+     [java] 
+     [java] PIL:
+     [java] Current instruction: 15
+     [java] Instruction list: C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 3 RC: 0 T: MEMORY F: true STORE,96,11
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 4 RC: 0 T: MEMORY F: true LOAD,150,0
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: END F: true
+     [java] 
+     [java] PID: 3 Size: 140 t_init: 12 t_finished: 71
+     [java] PMM:
+     [java] Page: 0 Frame: 3 Valid: true Dirty: false
+     [java] Page: 1 Frame: 0 Valid: true Dirty: true
+     [java] Page: 2 Frame: -1 Valid: false Dirty: false
+     [java] 
+     [java] PIL:
+     [java] Current instruction: 14
+     [java] Instruction list: C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 4 RC: 0 T: IO F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 3 RC: 0 T: MEMORY F: true STORE,88,7
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: END F: true
+     [java] 
+     [java] PID: 4 Size: 320 t_init: 18 t_finished: 82
+     [java] PMM:
+     [java] Page: 0 Frame: 4 Valid: true Dirty: true
+     [java] Page: 1 Frame: -1 Valid: false Dirty: false
+     [java] Page: 2 Frame: -1 Valid: false Dirty: false
+     [java] Page: 3 Frame: 7 Valid: true Dirty: false
+     [java] Page: 4 Frame: -1 Valid: false Dirty: false
+     [java] Page: 5 Frame: -1 Valid: false Dirty: false
+     [java] 
+     [java] PIL:
+     [java] Current instruction: 19
+     [java] Instruction list: C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 5 RC: 0 T: MEMORY F: true LOAD,220,0
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 3 RC: 0 T: MEMORY F: true STORE,48,19
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: END F: true
+     [java] 
+     [java] PID: 5 Size: 110 t_init: 30 t_finished: 89
+     [java] PMM:
+     [java] Page: 0 Frame: 1 Valid: true Dirty: false
+     [java] Page: 1 Frame: 2 Valid: true Dirty: true
+     [java] 
+     [java] PIL:
+     [java] Current instruction: 10
+     [java] Instruction list: C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 3 RC: 0 T: MEMORY F: true LOAD,36,0
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 3 RC: 0 T: MEMORY F: true STORE,72,5
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: END F: true
+     [java] 
+     [java] PID: 6 Size: 130 t_init: 72 t_finished: 99
+     [java] PMM:
+     [java] Page: 0 Frame: 0 Valid: true Dirty: true
+     [java] Page: 1 Frame: 3 Valid: true Dirty: false
+     [java] Page: 2 Frame: -1 Valid: false Dirty: false
+     [java] 
+     [java] PIL:
+     [java] Current instruction: 12
+     [java] Instruction list: C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 3 RC: 0 T: MEMORY F: true LOAD,82,0
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 3 RC: 0 T: MEMORY F: true STORE,40,9
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: CPU F: true
+     [java] C: 1 RC: 0 T: END F: true
+     [java] 
+     [java] 
+     [java] ******VM Metrics******
+     [java] Policy: FIFO
+     [java] Frames per process: 2
+     [java] VM Accesses: 35
+     [java] VM Faults: 7
+     [java] VM Evictions: 1
+     [java] VM Dirty Evictions: 1
+     [java] Fault rate: 0.200000
+     [java] EAT (ns): 1000080
+     [java] VM_CSV: FIFO,2,35,7,1,1,0.200000,1000080
+     [java] 24 - 7
+     [java] 
+     [java] 40 - 9
+     [java] 
+     [java] 136 - 5
+     [java] 
+     [java] 304 - 19
+     [java] 
+     [java] 372 - 21
+     [java] 
+     [java] Free frame number: 16385
+
+BUILD SUCCESSFUL
+Total time: 2 seconds
