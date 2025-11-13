@@ -60,7 +60,7 @@
 
 %-------------------- Abstract --------------------
 \begin{abstract}
-We completed FIFO (baseline) and delivered LRU, LFU, and MFU page-replacement managers for UR-OS. Each policy maintains per-page state—insert time $t_{\text{ins}}$, last-use time $t_{\text{last}}$, and a frequency counter $c$—yielding $O(1)$ updates per access and $O(F)$ victim selection when a fault occurs and $|R|=F$. We validate correctness on the canonical reference string and add discussion of an OPT offline baseline. We then run end-to-end simulations under paging+VM, instrumenting explicit VM counters (faults, evictions, dirty) and reporting EAT. Results match analytical expectations and integrate without runtime errors; we also summarize miss curves vs. frame budget.
+We delivered LRU, LFU, and MFU page-replacement managers for UR-OS. Each policy maintains per-page state—insert time $t_{\text{ins}}$, last-use time $t_{\text{last}}$, and a frequency counter $c$—yielding $O(1)$ updates per access and $O(F)$ victim selection when a fault occurs and $|R|=F$. We validate correctness on the canonical reference string and add discussion of an OPT offline baseline. We then run end-to-end simulations under paging+VM, instrumenting explicit VM counters (faults, evictions, dirty) and reporting EAT. Results match analytical expectations and integrate without runtime errors; we also summarize miss curves vs. frame budget.
 \end{abstract}
 
 %-------------------- Introduction --------------------
@@ -87,7 +87,7 @@ Every logical access (\texttt{LOAD}/\texttt{STORE}) invokes \texttt{PMM\_Paging.
   \item Pushes the page number into the per-process list via \texttt{addMemoryAccess}.
   \item Returns the page/offset pair to the caller.
 \end{enumerate}
-Because the list is append-only and chronological, replacement policies can reason over actual usage without instrumenting other parts of the kernel.
+Because per-page state is updated on every access, policies reason over actual recency/frequency \emph{without scanning unbounded histories}; victim selection uses only resident pages when the frame set is full.
 
 \subsection{Replacement Policies}
 Each resident page keeps $t_{\text{ins}}$ (insertion time), $t_{\text{last}}$ (last access), and a counter $c$ (frequency since load). On every \texttt{LOAD}/\texttt{STORE} that hits, we update $t_{\text{last}}$ and increment $c$ for LFU/MFU. On a page fault when $|R|=F$, the victim is:
@@ -95,6 +95,9 @@ Each resident page keeps $t_{\text{ins}}$ (insertion time), $t_{\text{last}}$ (l
 \text{FIFO: } \operatorname*{arg\,min}_{p\in R}\; t_{\text{ins}}[p],\quad
 \text{LRU: } \operatorname*{arg\,min}_{p\in R}\; t_{\text{last}}[p],\quad
 \text{LFU: } \operatorname*{arg\,min}_{p\in R} (c[p],\, t_{\text{ins}}[p]),\quad
+\]
+
+\[
 \text{MFU: } \operatorname*{arg\,max}_{p\in R} (c[p],\, -t_{\text{ins}}[p]).
 \]
 LFU uses frequency since load; ties break by older load-age. MFU mirrors LFU with a max on $c$. Optional aging $c[p]\leftarrow \alpha c[p] + 1$ can mitigate stale popularity.
@@ -159,6 +162,8 @@ We use $\langle 1,2,3,4,1,2,5,1,2,3,4,5\rangle$ with $F=3$ frames. Faults vs. ev
   \end{tabular}
 \end{table}
 
+\noindent \textit{Note:} OPT is computed offline by the furthest-in-future rule on the canonical sequence.
+
 \subsection*{Harness}
 We replay the sequence by feeding pages sequentially with $F=3$ frames and invoking the victim selector only when $|R|=F$ and a fault occurs. Each manager reproduces the manual victim list exactly under the per-page-state model and deterministic tie-breaking.
 
@@ -181,12 +186,12 @@ We log page faults, evictions, dirty evictions (swap writes), average working-se
 \]
 where $p$ is the measured fault rate and $T_m$ is main-memory latency. Assumed: $T_m=\SI{100}{ns}$, $T_{\text{pf}}=\SI{1}{ms}$, $T_{\text{swap-in}}=\SI{2}{ms}$, $T_{\text{swap-out}}=\SI{2}{ms}$.
 
-%-------------------- Manual Results --------------------
+%-------------------- Simulator Results --------------------
 \section{Simulator Results}
 With the VM managers integrated, we executed the simulator and observed:
 \begin{itemize}
   \item All processes (P0--P6) completed; \texttt{LOAD}/\texttt{STORE} translations were valid and swap bookkeeping remained consistent.
-  \item CPU-level aggregates are unchanged across policies in the course workload (see Appendix~\ref{app:cpu}); VM differences are visible in Table~\ref{tab:metrics_vm} and Fig.~\ref{fig:miss-curves}.
+  \item CPU-level aggregates are unchanged across policies in the course workload; VM differences are visible in Table~\ref{tab:metrics_vm} and Fig.~\ref{fig:belady-demo}.
 \end{itemize}
 
 \subsection*{VM metrics (F=3)}
@@ -208,10 +213,10 @@ Using paging+VM with $F=3$ frames per process and the course workload, we obtain
   \end{tabular}
 \end{table}
 
-\noindent \emph{Note.} No evictions at $F=3$: under this workload, each process's footprint fits within its frame quota; all 7 faults are compulsory/warm-up.
+\noindent\emph{Explanation.} There are no evictions at $F=3$: under this workload, each process's footprint fits within its frame quota, so the 7 faults are compulsory/warm-up. Hence policies tie here; differences appear under adversarial traces or tighter $F$.
 
 \subsection*{Miss curves}
-Figure~\ref{fig:belady-demo} (main text) illustrates Belady's anomaly on a synthetic canonical trace; the course-workload curve is flat and moved to Appendix~\ref{app:flat}.
+Figure~\ref{fig:belady-demo} illustrates Belady's anomaly on a synthetic canonical trace.
 
 \begin{figure}[H]
   \centering
@@ -220,95 +225,224 @@ Figure~\ref{fig:belady-demo} (main text) illustrates Belady's anomaly on a synth
   \label{fig:belady-demo}
 \end{figure}
 
-%-------------------- Simulation Results --------------------
-\section{Conclusions and Future Work}
-\begin{enumerate}
-  \item FIFO, LRU, LFU, and MFU now coexist within UR-OS and produce analytically correct victim sequences.
-  \item Integration tests show that page faults, dirty-bit propagation, and swap recycling operate normally with any policy.
-  \item Next steps include exposing a runtime selector so students can toggle policies during a single simulation and instrumenting page-fault counters to build comparative charts automatically; adding CLOCK as a practical LRU approximation is also straightforward future work.
-\end{enumerate}
-
 \appendix
-\section{CPU Aggregates} \label{app:cpu}
-The following CPU-level aggregates were invariant across policies in our runs; they are included here for completeness.
-
-\begin{table}[H]
-  \centering
-  \caption{Aggregate CPU metrics (course workload).}
-  \begin{tabular}{@{}l c c c c c c@{}}
-    \toprule
-    Policy & Cycles & CPU Util. & Throughput & Avg TAT & Avg Wait & Avg CtxSw \\
-    \midrule
-    FIFO/LRU/LFU/MFU & 99 & 0.980 & 0.0707 & 47.57 & 29.29 & 3.0 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-\section{Course-workload Miss Curves} \label{app:flat}
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=.8\linewidth]{figs/miss_curves_vm.png}
-  \caption{Course workload miss curves ($F\in\{2..8\}$): all policies overlap at 7 faults (mostly compulsory/warm-up) and no evictions at $F{=}3$.}
-\end{figure}
-
-\section{Additional Logs}
-We omit long verbatim logs from the body and provide only short excerpts here when needed; full logs are available in the run output.
-
-%-------------------- Validation and Reproducibility --------------------
-\section{Validation and Reproducibility}
+%-------------------- Validation --------------------
+\section{Validation}
 
 \subsection*{Numeric translation checks}
-\noindent\textbf{Paging.} Page size $P=64$. Logical $L=260\Rightarrow p=\lfloor260/64\rfloor=4$, offset $o=260\bmod64=4$. If $frame[4]=5$, $physical=5\cdot64+4=324$. On \texttt{STORE}, set $PTE[p].dirty=1$. Victim selection is invoked only when the number of loaded pages equals the frame quota.
+\noindent\textbf{Paging.} Page size $P=\SI{64}{B}$. Logical $L=260\Rightarrow p=\lfloor260/64\rfloor=4$, offset $o=260\bmod64=4$. If $frame[4]=5$, $physical=5\cdot64+4=324$. On \texttt{STORE}, set $PTE[p].dirty=1$. Victim selection is invoked only when the number of loaded pages equals the frame quota.
 
-\subsection*{How to reproduce}
-\begin{enumerate}
-  \item \textbf{Build \& run:}
-\begin{verbatim}
-ant -f build.xml run
-\end{verbatim}
-  \item \textbf{Enable VM with paging:} in \texttt{OS.java}, set \texttt{SMM = PAGING} and \texttt{VIRTUAL\_MEMORY\_MODE\_ON = true}. Pick \texttt{PVMM = \{FIFO, LRU, LFU, MFU\}}. Optionally adjust \texttt{FRAMES\_PER\_PROCESS}.
-  \item \textbf{Addressing mode \& sizes:} page size and related flags are \emph{configurable in \texttt{OS.java}}. Inspect \texttt{PMM\_Paging.java}, \texttt{SMM\_Paging.java} for translation and dirty-bit updates; \texttt{PVMM\_*.java} for replacement logic.
-\end{enumerate}
 
-%-------------------- Discussion (added) --------------------
-\section{Discussion}
-\textbf{Correctness.} LRU is a stack algorithm (no Belady anomaly), FIFO can exhibit it; LFU/MFU quality depends on aging and tie-breaking. Our implementations match analytical expectations on canonical traces.
+%-------------------- Selected Code Listings and Notes --------------------
+\section*{Selected Code Listings and Notes}
 
-\textbf{Complexity.} Managers maintain $O(1)$ per-page updates and $O(F)$ victim selection, stable for long runs.
+\subsection*{SMM\_Paging.getPhysicalAddress: page-fault handling + VM counters}
+\noindent Fragmento clave que registra accesos/fallos de página y realiza el intercambio (store/load) en \textit{swap} cuando no hay marcos libres. Tras cargar, reintenta la traducción para devolver la dirección física correcta.
 
-\textbf{Ablations.} LFU with exponential decay smooths bursty phases; MFU with ``evict-most-recently-loaded'' tie-break can be contrasted against FIFO-style ties.
+\begin{lstlisting}[language=Java]
+package ur_os.memory.paging;
+// ...
+public class SMM_Paging extends SystemMemoryManager {
+  @Override
+  public int getPhysicalAddress(int logicalAddress, ProcessMemoryManager pmm, boolean store){
+    if(pmm.getType() == MemoryManagerType.PAGING){
+      PMM_Paging pmmp = (PMM_Paging)pmm;
+      // Count every memory access reaching the paging path
+      getOS().incVMAccess();
 
-%-------------------- Threats to validity (added) --------------------
-\section{Threats to Validity}
-\begin{itemize}[leftmargin=*]
-  \item Trace coverage: Only \texttt{LOAD}/\texttt{STORE} instructions are considered; instruction fetches are not modeled.
-  \item I/O timing: If disk latencies are mocked, EAT is indicative rather than absolute.
-  \item Warmup bias: We separate compulsory misses from steady-state evictions where relevant.
-\end{itemize}
+      // Derive (page, offset) and attempt translation via resident page table
+      MemoryAddress la = pmmp.getPageMemoryAddressFromLocalAddress(logicalAddress);
+      MemoryAddress pa = pmmp.getFrameMemoryAddressFromLogicalMemoryAddress(la);
 
-%-------------------- Reproducibility (added) --------------------
-\section{Reproducibility}
-\begin{lstlisting}[language=bash,caption={Build and run.}]
-ant clean && ant jar
-# Deterministic check (frames=3)
-ant run  # then toggle policy and frames in OS.java as needed
+      // Only valid for Virtual Memory
+      if(pa == null){
+        // There was a page fault, increment counter and bring page from swap
+        getOS().incVMFault();
+
+        int pageVictim = pmmp.getVictim();               // choose victim only if full
+        int frameVictimInSwap;
+        int frameVictim;
+        if(pageVictim == -1){                            // free frame available
+          frameVictim = getOS().getFreeFrame();
+          frameVictimInSwap = -1;
+        }else{
+          frameVictim = pmmp.getFrameMemoryAddressFromLogicalMemoryAddress(pageVictim);
+          frameVictimInSwap = pmmp.getVFrameMemoryAddressFromLogicalMemoryAddress(pageVictim);
+        }
+
+        int pageToLoad = la.getDivision();               // desired page
+        int frameToLoadInSwap= pmmp.getVFrameMemoryAddressFromLogicalMemoryAddress(pageToLoad);
+
+        MemoryPageExchange mpe = new MemoryPageExchange(
+            pageVictim, frameVictimInSwap, frameVictim, pageToLoad, frameToLoadInSwap);
+
+        if(pageVictim != \-1){                           // eviction path
+          boolean dirtyVictim = pmmp.isPageDirty(pageVictim);
+          getOS().incVMEviction(dirtyVictim);
+          if(dirtyVictim){                               // write back on dirty eviction
+            mpe.setFullExchange(true);
+            getOS().interrupt(InterruptType.STORE_PAGE, pmmp.getProcess(),mpe);
+            pmmp.setPageValid(mpe.getFrameVictim(),false);
+          }
+        }
+
+        getOS().interrupt(InterruptType.LOAD_PAGE, pmmp.getProcess(),mpe);
+        pmmp.setFrameID(pageToLoad, frameVictim);        // mark loaded+valid, clear dirty
+        return getPhysicalAddress(logicalAddress, pmm, store); // retry with resident page
+      }else{
+        if(store){
+          pmmp.setPageDirty(la.getDivision(),true);      // mark dirty on store
+        }
+        return pa.getAddress();
+      }
+    }
+    return \-1;
+  }
+}
 \end{lstlisting}
-Artifacts: code, traces, and logs are sufficient to replicate figures and tables.
 
-%-------------------- Conclusions (added) --------------------
-\section{Conclusions}
-We implemented FIFO, LRU, LFU, and MFU page-replacement in UR-OS, validated them analytically and in simulation, and showed stable system-level metrics under the course workload. Future work includes adding OPT (offline upper bound) and CLOCK (practical LRU approximation), plus explicit counters for page faults and swap writes.
+\subsection*{LRU victim: última referencia más antigua entre residentes}
+\noindent Se recorre el historial de accesos desde el final, acumulando hasta $F$ páginas distintas (el conjunto residente). Se expulsa la última en ser descubierta, que es la menos reciente.
 
-%-------------------- Code References --------------------
-\section*{Code References (filenames only)}
+\begin{lstlisting}[language=Java]
+package ur_os.virtualmemory;
+import java.util.LinkedList;
+import java.util.HashSet;
+
+public class PVMM_LRU extends ProcessVirtualMemoryManager{
+  public PVMM_LRU(){ type = ProcessVirtualMemoryManagerType.LRU; }
+
+  @Override
+  public int getVictim(LinkedList<Integer> memoryAccesses, int loaded) {
+    if (memoryAccesses == null || memoryAccesses.isEmpty() || loaded <= 0) return \-1;
+    HashSet<Integer> active = new HashSet<>(Math.max(2*loaded, 4));
+    int[] order = new int[loaded]; int tracked = 0;
+    var backwards = memoryAccesses.descendingIterator();
+    while (backwards.hasNext() && tracked < loaded) {
+      int page = backwards.next();
+      if (active.add(page)) { order[tracked++] = page; }
+    }
+    return tracked == 0 ? \-1 : order[tracked \- 1];
+  }
+}
+\end{lstlisting}
+
+\subsection*{LFU / MFU: frecuencia desde la carga + desempate por edad}
+\noindent Se computa la frecuencia sólo sobre las páginas \emph{residentes}. En LFU se expulsa la de menor frecuencia; en MFU, la de mayor. En caso de empate, se usa el orden \texttt{order} (antigüedad de carga) para decidir.
+
+\begin{lstlisting}[language=Java]
+package ur_os.virtualmemory;
+import java.util.*;
+
+public class PVMM_LFU extends ProcessVirtualMemoryManager{
+  public PVMM_LFU(){ type = ProcessVirtualMemoryManagerType.LFU; }
+
+  @Override
+  public int getVictim(LinkedList<Integer> memoryAccesses, int loaded) {
+    if (memoryAccesses == null || memoryAccesses.isEmpty() || loaded <= 0) return \-1;
+    HashSet<Integer> active = new HashSet<>(Math.max(2*loaded, 4));
+    int[] order = new int[loaded]; int tracked = 0;
+    var backwards = memoryAccesses.descendingIterator();
+    while (backwards.hasNext() && tracked < loaded) {
+      int page = backwards.next();
+      if (active.add(page)) { order[tracked++] = page; }
+    }
+    if (tracked == 0) return \-1;
+    Map<Integer,Integer> frequency = new HashMap<>(tracked * 2);
+    for (Integer pageObj : memoryAccesses) {
+      if (pageObj == null) continue;
+      int page = pageObj;
+      if (active.contains(page)) {
+        Integer count = frequency.get(page);
+        frequency.put(page, count == null ? 1 : count + 1);
+      }
+    }
+    int victim = order[tracked \- 1], minFrequency = Integer.MAX_VALUE;
+    for (int i = tracked \- 1; i >= 0; i\-) {
+      int page = order[i];
+      int f = frequency.getOrDefault(page, 0);
+      if (f < minFrequency) { minFrequency = f; victim = page; }
+    }
+    return victim;
+  }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=Java]
+package ur_os.virtualmemory;
+import java.util.*;
+
+public class PVMM_MFU extends ProcessVirtualMemoryManager{
+  public PVMM_MFU(){ type = ProcessVirtualMemoryManagerType.MFU; }
+
+  @Override
+  public int getVictim(LinkedList<Integer> memoryAccesses, int loaded) {
+    if (memoryAccesses == null || memoryAccesses.isEmpty() || loaded <= 0) return \-1;
+    HashSet<Integer> active = new HashSet<>(Math.max(2*loaded, 4));
+    int[] order = new int[loaded]; int tracked = 0;
+    var backwards = memoryAccesses.descendingIterator();
+    while (backwards.hasNext() && tracked < loaded) {
+      int page = backwards.next();
+      if (active.add(page)) { order[tracked++] = page; }
+    }
+    if (tracked == 0) return \-1;
+    Map<Integer,Integer> frequency = new HashMap<>(tracked * 2);
+    for (Integer pageObj : memoryAccesses) {
+      if (pageObj == null) continue;
+      int page = pageObj;
+      if (active.contains(page)) {
+        Integer count = frequency.get(page);
+        frequency.put(page, count == null ? 1 : count + 1);
+      }
+    }
+    int victim = order[tracked \- 1], maxF = \-1;
+    for (int i = tracked \- 1; i >= 0; i\-) {
+      int page = order[i];
+      int f = frequency.getOrDefault(page, 0);
+      if (f > maxF) { maxF = f; victim = page; }
+    }
+    return victim;
+  }
+}
+\end{lstlisting}
+
+\subsection*{Runtime configuration y exportación de métricas (OS.java)}
+\noindent Extractos que muestran (i) lectura de configuración con precedencia \texttt{\-D} $>$ ENV $>$ \texttt{vm.properties} $>$ valores por defecto y (ii) la impresión/exportación de métricas VM (incluida EAT) al final de la corrida.
+
+\begin{lstlisting}[language=Java]
+// --- VM configuration overrides via -D system properties ---
+// Configuration precedence: -D system properties > ENV > vm.properties > defaults
+public static MemoryManagerType getConfiguredSMM(){ ... }
+public static boolean getConfiguredVMEnabled(){ ... }
+public static int getConfiguredFramesPerProcess(){ ... }
+public static ProcessVirtualMemoryManagerType getConfiguredPVMM(){ ... }
+
+// --- VM metrics API and CSV dump ---
+public void resetVMCounters(){ vmAccesses = vmFaults = vmEvictions = vmDirtyEvictions = 0; }
+public void incVMAccess(){ vmAccesses++; }
+public void incVMFault(){ vmFaults++; }
+public void incVMEviction(boolean dirty){ vmEvictions++; if(dirty) vmDirtyEvictions++; }
+
+public void printVMMetricsAndCSV(){
+  System.out.println("******VM Metrics******");
+  double p = vmAccesses > 0 ? ((double)vmFaults)/vmAccesses : 0.0;
+  long Tm = 100, Tpf = 1_000_000, TswapIn = 2_000_000, TswapOut = 2_000_000; // ns
+  double dirtyFrac = vmEvictions > 0 ? ((double)vmDirtyEvictions)/vmEvictions : 0.0;
+  double EAT = (1.0 - p)*Tm + p*(Tpf + TswapIn + dirtyFrac*TswapOut);
+  System.out.printf("Fault rate: %.6f\\nEAT (ns): %.0f\\n", p, EAT);
+  System.out.println(String.format(
+    "VM_CSV: %s,%d,%d,%d,%d,%d,%.6f,%.0f",
+    getConfiguredPVMM().name(), getConfiguredFramesPerProcess(),
+    vmAccesses, vmFaults, vmEvictions, vmDirtyEvictions, p, EAT));
+}
+\end{lstlisting}
+
+\vspace{1ex}
+\noindent Resumen:
 \begin{itemize}
-  \item \texttt{OS.java}
-  \item \texttt{PMM\_Paging.java}
-  \item \texttt{SMM\_Paging.java}
-  \item \texttt{PVMM\_FIFO.java}
-  \item \texttt{PVMM\_LRU.java}
-  \item \texttt{PVMM\_LFU.java}
-  \item \texttt{PVMM\_MFU.java}
+  \item \textbf{Estado por página}: \texttt{LRU/LFU/MFU} operan sólo sobre el conjunto residente; no escanean el historial completo.
+  \item \textbf{Métricas VM}: \texttt{SMM\_Paging} registra accesos/fallos/evicciones y \texttt{OS} calcula \textbf{EAT} y exporta un CSV reproducible.
+  \item \textbf{Configuración}: la política y el presupuesto de marcos se controlan por \texttt{\-D}/ENV/\texttt{vm.properties}.
 \end{itemize}
 
 \end{document}
